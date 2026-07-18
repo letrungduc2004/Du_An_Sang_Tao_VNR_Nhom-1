@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Số Hóa Ký Ức Đổi Mới - Chương V</title>
+    <meta name="description"
+        content="Dự án sáng tạo: Số hóa ký ức Đổi mới - Chương V: Khát vọng hùng cường và tầm nhìn chiến lược năm 2045 (Đại hội XIII - 2021)">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;600;700;900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js">
+    </script>
+
+    <style>
+        :root {
+            --red: #C8102E;
+            --red-dark: #8B0000;
+            --red-light: #FDE8EA;
+            --gold: #D4A017;
+            --gold-light: #F5D76E;
+            --bg: #F4EDE0;
+            --bg2: #FAF7F0;
+            --text: #2B2B2B;
+            --muted: #6B5B4E;
+            --white: #ffffff;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --border: rgba(200, 16, 46, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 18px;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* Particle Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* Progress Bar */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--red), var(--gold), var(--red));
+            width: 0%;
+            z-index: 1000;
+            background-size: 200% 100%;
+            animation: gradientMove 3s linear infinite;
+        }
+
+        @keyframes gradientMove {
+            0% {
+                background-position: 0% 0%;
+            }
+            100% {
+                background-position: 200% 0%;
+            }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(244, 237, 224, 0.95);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 2rem;
+            z-index: 99;
+            border-bottom: 2px solid var(--border);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        nav .logo {
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: var(--red);
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        
+
+        nav .menu-links a {
+            text-decoration: none;
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-left: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        nav .menu-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--red);
+            transition: width 0.3s ease;
+        }
+
+        nav .menu-links a:hover::after {
+            width: 100%;
+        }
+
+        nav .menu-links a:hover {
+            color: var(--red);
+        }
+
+        nav .menu-links a.active {
+            color: var(--red);
+        }
+
+        nav .menu-links a.active::after {
+            width: 100%;
+        }
+
+        /* Back to Top */
+        #back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(200, 16, 46, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 99;
+            transform: scale(0.8);
+        }
+
+        #back-to-top.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        #back-to-top:hover {
+            transform: scale(1.1) translateY(-4px);
+            box-shadow: 0 8px 30px rgba(200, 16, 46, 0.5);
+        }
+
+        /* ==========================================
+           SPLIT-SCREEN SCROLLYTELLING
+           ========================================== */
+        #chapter5 {
+            display: flex;
+            position: relative;
+            width: 100vw;
+            min-height: 100vh;
+            margin-top: 4rem;
+        }
+
+        .left-panel {
+            position: sticky;
+            top: 4rem;
+            width: 50%;
+            height: calc(100vh - 4rem);
+            background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+            border-right: 2px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 2rem;
+        }
+
+        .timeline-svg-wrapper {
+            position: relative;
+            width: 100%;
+            height: 95%;
+        }
+
+        .left-panel-title {
+            position: absolute;
+            top: 1.5rem;
+            left: 2rem;
+            font-size: 0.7rem;
+            font-weight: 900;
+            color: var(--red);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: rgba(200, 16, 46, 0.08);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            border: 1px solid rgba(200, 16, 46, 0.15);
+        }
+
+        .right-panel {
+            width: 50%;
+            padding: 4rem 4rem 6rem 3rem;
+            z-index: 2;
+        }
+
+        .scrolly-section {
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-bottom: 8rem;
+            opacity: 0.15;
+            transform: translateY(30px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .scrolly-section.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-tag {
+            font-size: 0.7rem;
+            font-weight: 900;
+            color: var(--red);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            background: rgba(200, 16, 46, 0.08);
+            display: inline-block;
+            padding: 0.2rem 1rem;
+            border-radius: 20px;
+        }
+
+        .scrolly-section h2 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--text);
+            line-height: 1.25;
+            margin-bottom: 1.5rem;
+        }
+
+        .scrolly-section h2 span {
+            color: var(--red);
+            position: relative;
+        }
+
+        .scrolly-section h2 span::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--red);
+            opacity: 0.3;
+            border-radius: 2px;
+        }
+
+        .scrolly-section p {
+            color: var(--muted);
+            font-size: 1.05rem;
+            margin-bottom: 1.2rem;
+            text-align: justify;
+            line-height: 1.9;
+        }
+
+        .stats-grid {
+            display: flex;
+            gap: 1.2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            flex: 1;
+            min-width: 160px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border-top: 3px solid var(--red);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            border-top-color: var(--gold);
+        }
+
+        .stat-card .value {
+            font-size: 2.4rem;
+            font-weight: 900;
+            color: var(--red);
+            line-height: 1.1;
+        }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--muted);
+            margin-top: 0.3rem;
+            line-height: 1.3;
+        }
+
+        .stat-card .sub-label {
+            font-size: 0.7rem;
+            color: var(--muted);
+            opacity: 0.6;
+            margin-top: 0.2rem;
+        }
+
+        .highlight-box {
+            background: rgba(200, 16, 46, 0.04);
+            border-left: 4px solid var(--red);
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 12px 12px 0;
+            transition: all 0.3s ease;
+        }
+
+        .highlight-box:hover {
+            border-left-color: var(--gold);
+            background: rgba(212, 160, 23, 0.04);
+        }
+
+        .highlight-box.vision {
+            border-left-color: var(--gold);
+            background: rgba(212, 160, 23, 0.04);
+        }
+
+        .highlight-box h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--red);
+            margin-bottom: 0.4rem;
+        }
+
+        .highlight-box.vision h4 {
+            color: var(--gold);
+        }
+
+        .highlight-box p {
+            font-size: 0.95rem;
+            margin-bottom: 0;
+        }
+
+        .btn-detail {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            padding: 0.8rem 1.8rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(200, 16, 46, 0.25);
+            align-self: flex-start;
+            transition: all 0.3s ease;
+        }
+
+        .btn-detail:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(200, 16, 46, 0.35);
+            background: var(--red-dark);
+        }
+
+        .btn-detail:active {
+            transform: translateY(0);
+        }
+
+        /* ==========================================
+           DRAWER
+           ========================================== */
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -480px;
+            width: 440px;
+            height: 100vh;
+            background: var(--bg2);
+            box-shadow: -10px 0 50px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            transition: right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--border);
+        }
+
+        .drawer.open {
+            right: 0;
+        }
+
+        .drawer-header {
+            padding: 2rem 2rem 1.2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--red-light);
+        }
+
+        .drawer-header h3 {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--red);
+        }
+
+        .drawer-close {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .drawer-close:hover {
+            color: var(--red);
+            background: rgba(200, 16, 46, 0.06);
+        }
+
+        .drawer-body {
+            padding: 2rem 2.2rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .drawer-body h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            margin-top: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .drawer-body h4:first-child {
+            margin-top: 0;
+        }
+
+        .drawer-body h4::before {
+            content: '◆';
+            color: var(--red);
+            font-size: 0.7rem;
+        }
+
+        .drawer-body p {
+            font-size: 0.95rem;
+            color: var(--muted);
+            margin-bottom: 1rem;
+            text-align: justify;
+            line-height: 1.8;
+        }
+
+        .drawer-body ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .drawer-body ul li {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 0.5rem;
+        }
+
+        .drawer-body ul li::before {
+            content: '›';
+            color: var(--red);
+            font-weight: 700;
+            margin-right: 0.5rem;
+        }
+
+        .drawer-body .stat-highlight {
+            background: var(--red-light);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 3px solid var(--red);
+        }
+
+        .drawer-body .stat-highlight strong {
+            color: var(--red);
+        }
+
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 999;
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Footer */
+        .footer-nav {
+            background: var(--text);
+            padding: 2.5rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 2px solid rgba(255, 255, 255, 0.05);
+            z-index: 3;
+            position: relative;
+        }
+
+        .footer-nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-nav a.btn-prev {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .footer-nav a.btn-prev:hover {
+            background: rgba(255, 255, 255, 0.16);
+            transform: translateX(-4px);
+        }
+
+        .footer-nav a.btn-next {
+            background: var(--red);
+            box-shadow: 0 4px 20px rgba(200, 16, 46, 0.3);
+        }
+
+        .footer-nav a.btn-next:hover {
+            transform: translateX(4px);
+            box-shadow: 0 8px 30px rgba(200, 16, 46, 0.4);
+            background: var(--red-dark);
+        }
+
+        .footer-nav .chapter-indicator {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 900px) {
+            #chapter5 {
+                flex-direction: column;
+            }
+
+            .left-panel {
+                position: relative;
+                top: 0;
+                width: 100%;
+                height: 50vh;
+                border-right: none;
+                border-bottom: 2px solid var(--border);
+            }
+
+            .right-panel {
+                width: 100%;
+                padding: 3rem 1.5rem;
+            }
+
+            .scrolly-section {
+                min-height: auto;
+                margin-bottom: 4rem;
+            }
+
+            .drawer {
+                width: 100%;
+                right: -100%;
+            }
+
+            nav .menu-links {
+                display: none;
+            }
+
+            .stats-grid {
+                flex-direction: column;
+            }
+
+            .scrolly-section h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Progress Bar -->
+    <div id="progress-bar"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">
+            <span>📜</span> SỐ HÓA KÝ ỨC ĐỔI MỚI
+        </div>
+        <div class="menu-links">
+            <a href="index.html" class="sound-hover">Trang Chủ</a>
+            <a href="index.html#chapter1" class="sound-hover">Chương I</a>
+            <a href="chude2.html" class="sound-hover">Chương II</a>
+            <a href="chude3.html" class="sound-hover">Chương III</a>
+            <a href="chude4.html" class="sound-hover">Chương IV</a>
+            <a href="#chapter5" class="sound-hover" style="color: var(--red)">Chương V</a>
+            <a href="chude6.html" class="sound-hover">Chương VI</a>
+        </div>
+    </nav>
+
+    <!-- Back to Top -->
+    <button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
+
+    <!-- ==========================================
+         SPLIT-SCREEN SCROLLYTELLING
+         ========================================== -->
+    <section id="chapter5">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <div class="left-panel-title">🦅 Hành Trình Hùng Cường 2025 - 2045</div>
+            <div class="timeline-svg-wrapper">
+                <svg id="timeline-svg" width="100%" height="100%" viewBox="-180 -120 380 280" preserveAspectRatio="xMidYMid meet">
+                    <!-- SVG content generated by JS/D3 -->
+                </svg>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+
+            <!-- Section 1: Đại hội XIII -->
+            <div id="section-1" class="scrolly-section active" data-index="0">
+                <span class="section-tag">Đại hội XIII · 2021</span>
+                <h2>Khát Vọng Hùng Cường<br><span>Và Động Lực Khởi Đầu</span></h2>
+                <p>Đại hội XIII (2021) đặt trọng tâm xây dựng hệ thống chính trị trong sạch, vững mạnh; khơi dậy mạnh mẽ
+                    tinh thần yêu nước, ý chí độc lập tự chủ và khát vọng phát triển đất nước phồn vinh, hạnh phúc.
+                    <strong>Nghị quyết Đại hội được thông qua với sự nhất trí 100%</strong>.</p>
+                <p>Trong bối cảnh đại dịch Covid-19 diễn biến phức tạp, Đảng và Nhà nước tập trung kiểm soát dịch bệnh,
+                    thực hiện đồng bộ chính sách hỗ trợ phục hồi sản xuất kinh doanh, tăng cường liên kết vùng miền,
+                    tạo bàn đạp kinh tế vững chắc để sẵn sàng vượt qua các ngưỡng lịch sử.</p>
+
+                <div class="highlight-box">
+                    <h4>🎯 Mục tiêu tổng quát đến năm 2025</h4>
+                    <p>Kỷ niệm 50 năm giải phóng miền Nam, thống nhất đất nước: Phấn đấu đưa Việt Nam trở thành nước
+                        đang phát triển, có công nghiệp theo hướng hiện đại, vượt qua mức thu nhập trung bình thấp.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" data-value="2025">0</div>
+                        <div class="label">📅 Mốc vượt thu nhập trung bình thấp</div>
+                        <div class="sub-label">Kỷ niệm 50 năm thống nhất</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" data-value="100" data-suffix="%">0%</div>
+                        <div class="label">✅ Sự nhất trí thông qua Nghị quyết</div>
+                        <div class="sub-label">Đại hội XIII</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" data-value="6.5" data-suffix="%">0%</div>
+                        <div class="label">📈 Tăng trưởng GDP bình quân</div>
+                        <div class="sub-label">Mục tiêu 2021-2025</div>
+                    </div>
+                </div>
+
+                <button class="btn-detail" onclick="openDrawer('congress13')">💡 Xem chi tiết Đại hội XIII</button>
+            </div>
+
+            <!-- Section 2: Chiến lược 2030 -->
+            <div id="section-2" class="scrolly-section" data-index="1">
+                <span class="section-tag">Tầm nhìn chiến lược 2030</span>
+                <h2>Nâng Tầm Vị Thế<br><span>Nước Công Nghiệp Hiện Đại</span></h2>
+                <p>Chiến lược phát triển kinh tế - xã hội 10 năm 2021-2030 xác định chủ đề xuyên suốt: <strong>"Khơi dậy khát vọng phát triển đất nước, phát huy mạnh mẽ giá trị văn hóa, con người Việt Nam và sức mạnh thời đại"</strong>.</p>
+                <p>Đến năm 2030, kỷ niệm 100 năm thành lập Đảng, mục tiêu là đưa Việt Nam trở thành nước đang phát triển,
+                    có công nghiệp hiện đại, thu nhập trung bình cao. Mô hình tăng trưởng chuyển dịch từ chiều rộng
+                    sang chiều sâu, dựa trên tiến bộ khoa học - công nghệ và đổi mới sáng tạo.</p>
+
+                <div class="highlight-box">
+                    <h4>🎯 Định hướng chiến lược 2030</h4>
+                    <p>Phấn đấu đưa nước ta trở thành nước đang phát triển, sở hữu nền công nghiệp hiện đại, tiềm lực
+                        kinh tế vững mạnh, vững vàng bước vào nhóm các quốc gia có mức thu nhập trung bình cao.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" data-value="2030">0</div>
+                        <div class="label">📅 Mốc đạt thu nhập trung bình cao</div>
+                        <div class="sub-label">100 năm thành lập Đảng</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" data-value="30" data-suffix="%">0%</div>
+                        <div class="label">💻 Kinh tế số trong GDP</div>
+                        <div class="sub-label">Mục tiêu đến 2030</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" data-value="45" data-suffix="%">0%</div>
+                        <div class="label">📊 Đóng góp TFP vào tăng trưởng</div>
+                        <div class="sub-label">Mục tiêu 2021-2025</div>
+                    </div>
+                </div>
+
+                <button class="btn-detail" onclick="openDrawer('vision2030')">🔬 Phân tích chiến lược 2030</button>
+            </div>
+
+            <!-- Section 3: Tầm nhìn 2045 & Chuyển đổi số -->
+            <div id="section-3" class="scrolly-section" data-index="2">
+                <span class="section-tag">Khát vọng thế kỷ 2045</span>
+                <h2>Việt Nam 2045<br><span>Kỷ Nguyên Số Hóa Hùng Cường</span></h2>
+                <p>Mốc thời gian vĩ đại kỷ niệm 100 năm thành lập nước Cộng hòa xã hội chủ nghĩa Việt Nam: Phấn đấu trở
+                    thành nước phát triển, văn minh, <strong>có thu nhập cao</strong>, định hướng xã hội chủ nghĩa vững chắc.</p>
+                <p>Để đạt được kỳ tích này, Đảng xác định nhiệm vụ then chốt mang tính cách mạng: Đẩy mạnh nghiên cứu,
+                    ứng dụng khoa học kỹ thuật; thực hiện quyết liệt chiến lược <strong>Chuyển đổi số quốc gia</strong>,
+                    xây dựng toàn diện nền Kinh tế số, Chính phủ số và Xã hội số.</p>
+
+                <div class="highlight-box vision">
+                    <h4>💻 Mục tiêu đột phá năm 2045</h4>
+                    <p>Việt Nam thuộc nhóm 30 nước dẫn đầu thế giới về đổi mới sáng tạo, chuyển đổi số. Quy mô kinh tế số
+                        đạt tối thiểu 50% GDP; là một trong các trung tâm công nghiệp công nghệ số của khu vực và thế giới.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" data-value="2045">0</div>
+                        <div class="label">🌟 Trở thành nước phát triển</div>
+                        <div class="sub-label">Thu nhập cao, văn minh</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" data-value="50" data-suffix="%">0%</div>
+                        <div class="label">📱 Quy mô kinh tế số tối thiểu</div>
+                        <div class="sub-label">Mục tiêu năm 2045</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" data-value="10">0</div>
+                        <div class="label">🏢 Doanh nghiệp công nghệ số</div>
+                        <div class="sub-label">Ngang tầm các nước tiên tiến</div>
+                    </div>
+                </div>
+
+                <button class="btn-detail" onclick="openDrawer('digital2045')">⚡ Khám phá kế hoạch số hóa</button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Drawer -->
+    <div class="drawer-overlay" onclick="closeDrawer()"></div>
+    <div class="drawer" id="detail-drawer">
+        <div class="drawer-header">
+            <h3 id="drawer-title">📖 Chi Tiết Tư Liệu</h3>
+            <button class="drawer-close" onclick="closeDrawer()">✕</button>
+        </div>
+        <div class="drawer-body" id="drawer-content"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-nav">
+        <a href="chude4.html" class="btn-prev sound-hover">← Chương IV: Thành tựu & Kinh nghiệm</a>
+        <span class="chapter-indicator">Chương V / VI</span>
+        <a href="chude6.html" class="btn-next sound-hover">Chương VI: Phòng, chống tham nhũng →</a>
+    </div>
+
+    <script>
+        /* ==========================================
+           WEB AUDIO API
+           ========================================== */
+        let audioCtx = null;
+        const initAudio = () => {
+            if (!audioCtx) {
+                audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+            }
+        };
+
+        const playSound = (freq, type = 'sine', duration = 0.1) => {
+            try {
+                initAudio();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) { console.log("Audio blocked"); }
+        };
+
+        document.body.addEventListener('click', initAudio, { once: true });
+
+        document.querySelectorAll('.sound-hover').forEach(el => {
+            el.addEventListener('mouseenter', () => playSound(880, 'sine', 0.05));
+            el.addEventListener('click', () => playSound(523, 'triangle', 0.15));
+        });
+
+        /* ==========================================
+           CANVAS PARTICLE
+           ========================================== */
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        const resizeCanvas = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2.5 + 0.5;
+                this.speedX = Math.random() * 0.6 - 0.3;
+                this.speedY = Math.random() * -0.5 - 0.1;
+                this.opacity = Math.random() * 0.4 + 0.1;
+                this.hue = Math.random() > 0.5 ? 'red' : 'gold';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.y < 0) {
+                    this.y = canvas.height;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+            draw() {
+                const color = this.hue === 'red' ? '200, 16, 46' : '212, 160, 23';
+                ctx.fillStyle = `rgba(${color}, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 45; i++) particles.push(new Particle());
+
+        const animateParticles = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update();
+                p.draw(); });
+            requestAnimationFrame(animateParticles);
+        };
+        animateParticles();
+
+        /* ==========================================
+           TIMELINE SVG - ĐƯỜNG BAY CHỮ S VÒNG XUỐNG 2045
+           ========================================== */
+        const svg = d3.select("#timeline-svg");
+        svg.style("font-family", "'Be Vietnam Pro', sans-serif");
+
+        // ===== DỮ LIỆU =====
+        const tlData = [
+            { id: 0, year: "2025", label: "50 năm Thống nhất", desc: "Thu nhập trung bình", cx: -80, cy: -65, icon: "🎯" },
+            { id: 1, year: "2030", label: "100 năm Đảng", desc: "Công nghiệp hiện đại", cx: 60, cy: -5, icon: "🏛️" },
+            { id: 2, year: "2045", label: "100 năm Đất nước", desc: "Hùng cường số hóa", cx: -70, cy: 75, icon: "🚀" }
+        ];
+
+        // ===== ĐƯỜNG BAY CHÍNH - HÌNH CHỮ S UỐN LƯỢN =====
+        // Đi từ 2025 (trên trái) -> 2030 (giữa phải) -> 2045 (dưới trái)
+        const pathData = "M -95,-95 Q -40,-75 -10,-60 Q 40,-35 70,-15 Q 90,5 85,30 Q 75,60 45,75 Q 10,90 -30,85 Q -60,80 -85,70";
+
+        const pathGroup = svg.append("g");
+        const mainPath = pathGroup.append("path")
+            .attr("d", pathData)
+            .attr("fill", "none")
+            .attr("stroke", "#e8ddd0")
+            .attr("stroke-width", "18")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round");
+
+        // ===== ĐƯỜNG LỬA TIẾN TRÌNH =====
+        const defs = svg.append("defs");
+        const gradient = defs.append("linearGradient")
+            .attr("id", "fireGradient")
+            .attr("gradientUnits", "userSpaceOnUse")
+            .attr("x1", "-95")
+            .attr("y1", "-95")
+            .attr("x2", "-85")
+            .attr("y2", "70");
+
+        gradient.append("stop").attr("offset", "0%").attr("stop-color", "#C8102E");
+        gradient.append("stop").attr("offset", "40%").attr("stop-color", "#D4A017");
+        gradient.append("stop").attr("offset", "70%").attr("stop-color", "#F5D76E");
+        gradient.append("stop").attr("offset", "100%").attr("stop-color", "#C8102E");
+
+        const fireTrail = pathGroup.append("path")
+            .attr("d", pathData)
+            .attr("fill", "none")
+            .attr("stroke", "url(#fireGradient)")
+            .attr("stroke-width", "9")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-dasharray", "1400")
+            .attr("stroke-dashoffset", "1400");
+
+        // ===== BẢN ĐỒ VIỆT NAM (nền mờ) =====
+        const vietnamMap = svg.append("g")
+            .attr("class", "vietnam-bg")
+            .attr("transform", "translate(-80, -70) scale(0.65)")
+            .attr("opacity", 0.05);
+
+        vietnamMap.append("path")
+            .attr("d", "M 20,10 Q 35,5 50,25 Q 70,15 85,45 Q 95,80 70,110 Q 45,130 25,105 Q 10,70 20,10 Z")
+            .attr("fill", "#C8102E")
+            .attr("stroke", "#F4EDE0")
+            .attr("stroke-width", "8");
+
+        // ===== CÁC ĐIỂM MỐC =====
+        const nodeGroup = svg.selectAll(".node")
+            .data(tlData)
+            .enter()
+            .append("g")
+            .attr("class", "node")
+            .attr("transform", d => `translate(${d.cx}, ${d.cy})`)
+            .style("cursor", "pointer");
+
+        // Vòng tròn ngoài
+        nodeGroup.append("circle")
+            .attr("r", 22)
+            .attr("fill", "#fff")
+            .attr("stroke", "#C8102E")
+            .attr("stroke-width", "4")
+            .on("mouseenter", function() {
+                playSound(880, 'sine', 0.04);
+                d3.select(this).transition().duration(200)
+                    .attr("stroke", "#D4A017")
+                    .attr("stroke-width", "5");
+            })
+            .on("mouseleave", function() {
+                d3.select(this).transition().duration(200)
+                    .attr("stroke", "#C8102E")
+                    .attr("stroke-width", "4");
+            });
+
+        // Vòng hào quang
+        nodeGroup.append("circle")
+            .attr("class", "node-glow")
+            .attr("r", 26)
+            .attr("fill", "none")
+            .attr("stroke", "#D4A017")
+            .attr("stroke-width", "3")
+            .attr("opacity", "0");
+
+        // Icon
+        nodeGroup.append("text")
+            .attr("class", "node-icon")
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .attr("font-size", "22")
+            .text(d => d.icon);
+
+        // Nhãn năm
+        nodeGroup.append("text")
+            .attr("class", "year-label")
+            .attr("y", -48)
+            .attr("text-anchor", "middle")
+            .attr("font-size", "21")
+            .attr("font-weight", "900")
+            .attr("fill", "#C8102E")
+            .text(d => d.year);
+
+        // Nhãn mô tả
+        nodeGroup.append("text")
+            .attr("class", "desc-label")
+            .attr("y", 48)
+            .attr("text-anchor", "middle")
+            .attr("font-size", "11")
+            .attr("font-weight", "600")
+            .attr("fill", "#6B5B4E")
+            .text(d => d.desc);
+
+        // Click event
+        nodeGroup.on("click", function(event, d) {
+            playSound(523, 'triangle', 0.1);
+            document.getElementById(`section-${d.id + 1}`).scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // ===== HẠT LỬA DỌC ĐƯỜNG BAY =====
+        const fireParticles = [
+            { x: -85, y: -85 }, { x: -65, y: -72 }, { x: -45, y: -62 },
+            { x: -25, y: -50 }, { x: -5, y: -40 }, { x: 15, y: -28 },
+            { x: 35, y: -18 }, { x: 55, y: -8 }, { x: 75, y: 2 },
+            { x: 85, y: 15 }, { x: 80, y: 35 }, { x: 65, y: 50 },
+            { x: 45, y: 62 }, { x: 20, y: 72 }, { x: -10, y: 78 },
+            { x: -40, y: 80 }, { x: -65, y: 75 }, { x: -80, y: 68 }
+        ];
+
+        fireParticles.forEach(pos => {
+            svg.append("circle")
+                .attr("class", "fire-particle")
+                .attr("cx", pos.x)
+                .attr("cy", pos.y)
+                .attr("r", 2.5)
+                .attr("fill", "#D4A017")
+                .attr("opacity", "0");
+        });
+
+        // ===== CẬP NHẬT TRẠNG THÁI =====
+        function updateTimeline(index) {
+            // Cập nhật đường lửa
+            const progressMap = [0, 460, 920];
+            const offset = 1400 - progressMap[index];
+
+            fireTrail.transition()
+                .duration(1200)
+                .ease(d3.easeCubicOut)
+                .attr("stroke-dashoffset", offset);
+
+            // Cập nhật các node
+            svg.selectAll(".node")
+                .classed("active", (d, i) => i === index);
+
+            svg.selectAll(".node").each(function(d, i) {
+                const node = d3.select(this);
+                if (i === index) {
+                    // Hào quang
+                    node.select(".node-glow")
+                        .transition()
+                        .duration(600)
+                        .attr("opacity", 0.7);
+
+                    // Icon chuyển trắng
+                    node.select(".node-icon")
+                        .attr("fill", "#fff");
+
+                    // Nhãn năm active
+                    node.select(".year-label")
+                        .attr("fill", "#C8102E")
+                        .style("font-size", "24px");
+
+                    // Nhãn mô tả active
+                    node.select(".desc-label")
+                        .attr("fill", "#C8102E")
+                        .style("font-size", "13px")
+                        .style("font-weight", "800");
+
+                } else {
+                    node.select(".node-glow")
+                        .transition()
+                        .duration(400)
+                        .attr("opacity", 0);
+
+                    node.select(".node-icon")
+                        .attr("fill", "#333");
+
+                    node.select(".year-label")
+                        .attr("fill", "#C8102E")
+                        .style("font-size", "21px");
+
+                    node.select(".desc-label")
+                        .attr("fill", "#6B5B4E")
+                        .style("font-size", "11px")
+                        .style("font-weight", "600");
+                }
+            });
+
+            // Cập nhật hạt lửa
+            svg.selectAll(".fire-particle")
+                .transition()
+                .duration(800)
+                .attr("opacity", 0.6)
+                .attr("r", 3);
+
+            // Highlight hạt lửa theo index
+            svg.selectAll(".fire-particle")
+                .transition()
+                .delay((d, i) => i * 100)
+                .attr("fill", "#C8102E")
+                .attr("r", 4.5);
+        }
+
+        // ===== SCROLLYTELLING =====
+        const sections = document.querySelectorAll('.scrolly-section');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    sections.forEach(s => s.classList.remove('active'));
+                    entry.target.classList.add('active');
+
+                    const index = parseInt(entry.target.getAttribute('data-index'));
+                    updateTimeline(index);
+
+                    entry.target.querySelectorAll('.value[data-value]').forEach(countUp);
+                }
+            });
+        }, { root: null, rootMargin: "-45% 0px -45% 0px", threshold: 0 });
+
+        sections.forEach(s => observer.observe(s));
+
+        // ===== COUNT-UP =====
+        function countUp(el) {
+            if (el.classList.contains('counted')) return;
+            el.classList.add('counted');
+            const target = parseFloat(el.getAttribute('data-value'));
+            const suffix = el.getAttribute('data-suffix') || '';
+            const isFloat = target % 1 !== 0;
+
+            let cur = 0;
+            const step = target / 40;
+            const interval = setInterval(() => {
+                cur += step;
+                if (cur >= target) {
+                    cur = target;
+                    clearInterval(interval);
+                }
+                el.textContent = (isFloat ? cur.toFixed(1) : Math.floor(cur)) + suffix;
+            }, 25);
+        }
+
+        // ===== SCROLL PROGRESS =====
+        window.addEventListener('scroll', () => {
+            const scrollTotal = document.body.scrollHeight - window.innerHeight;
+            const progress = (window.scrollY / scrollTotal) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+
+            const b2t = document.getElementById('back-to-top');
+            b2t.classList.toggle('show', window.scrollY > 400);
+        });
+
+        // ===== KHỞI TẠO BAN ĐẦU =====
+        updateTimeline(0);
+
+        /* ==========================================
+           DRAWER
+           ========================================== */
+        const drawerData = {
+            congress13: {
+                title: "Đại Hội XIII - Khởi động Khát vọng",
+                content: `
+                    <h4>1. Tổng quan Đại hội XIII</h4>
+                    <p>Đại hội đại biểu toàn quốc lần thứ XIII của Đảng họp từ ngày 25/01 đến 01/02/2021 tại Hà Nội,
+                    với chủ đề: <strong>"Đoàn kết, dân chủ, kỷ cương, sáng tạo, đổi mới, phát triển"</strong>.
+                    <strong>Nghị quyết Đại hội được thông qua với sự nhất trí 100%</strong>.</p>
+
+                    <h4>2. Những thành tựu đánh giá từ 35 năm đổi mới</h4>
+                    <p>Đại hội khẳng định những thành tựu đạt được là kết tinh sức sáng tạo của quá trình phấn đấu liên tục,
+                    bền bỉ của toàn Đảng, toàn dân và toàn quân qua nhiều nhiệm kỳ đại hội. Các thành tựu có ý nghĩa lịch sử
+                    của nước ta qua 35 năm đổi mới được khẳng định và đánh giá cao.</p>
+
+                    <h4>3. Mục tiêu tổng quát và định hướng</h4>
+                    <p><strong>Mục tiêu tổng quát:</strong> Nâng cao năng lực lãnh đạo, năng lực cầm quyền và sức chiến đấu
+                    của Đảng; xây dựng Đảng và hệ thống chính trị trong sạch, vững mạnh toàn diện; khơi dậy khát vọng
+                    phát triển đất nước phồn vinh, hạnh phúc; phấn đấu đến giữa thế kỷ XXI, nước ta trở thành nước phát triển,
+                    theo định hướng xã hội chủ nghĩa.</p>
+
+                    <h4>4. Các chỉ tiêu chủ yếu 2021-2025</h4>
+                    <div class="stat-highlight">
+                        <p><strong>📈 Tăng trưởng GDP bình quân:</strong> khoảng 6,5-7%/năm</p>
+                        <p><strong>🏭 Công nghiệp chế biến, chế tạo:</strong> trên 25% GDP</p>
+                        <p><strong>💻 Kinh tế số:</strong> đạt khoảng 20% GDP</p>
+                        <p><strong>📊 Đóng góp TFP vào tăng trưởng:</strong> đạt khoảng 45%</p>
+                        <p><strong>🏥 Bảo hiểm y tế:</strong> 95% dân số</p>
+                    </div>
+                `
+            },
+            vision2030: {
+                title: "Chiến lược 2030 - Nước Công Nghiệp Hiện Đại",
+                content: `
+                    <h4>1. Chủ đề Chiến lược 2021-2030</h4>
+                    <p><strong>"Khơi dậy khát vọng phát triển đất nước, phát huy mạnh mẽ giá trị văn hóa, con người Việt Nam và sức mạnh thời đại, huy động mọi nguồn lực, phát triển nhanh và bền vững trên cơ sở khoa học, công nghệ, đổi mới sáng tạo và chuyển đổi số"</strong>.</p>
+
+                    <h4>2. Đổi mới mô hình tăng trưởng</h4>
+                    <p>Văn kiện Đại hội XIII nhấn mạnh mô hình tăng trưởng mới cần tận dụng tốt cơ hội của cuộc Cách mạng
+                    công nghiệp lần thứ tư, dựa trên tiến bộ khoa học - công nghệ và đổi mới sáng tạo. <strong>Chuyển mạnh
+                    nền kinh tế sang mô hình tăng trưởng dựa trên tăng năng suất, tiến bộ khoa học và công nghệ, đổi mới
+                    sáng tạo, nhân lực chất lượng cao</strong>.</p>
+
+                    <h4>3. Cơ cấu lại nền kinh tế</h4>
+                    <p>Tiếp tục đẩy mạnh cơ cấu lại nền kinh tế. Cơ cấu lại, nâng cao hiệu quả đầu tư, nhất là đầu tư công.
+                    Cơ cấu lại, phát triển lành mạnh các loại thị trường, nhất là thị trường các yếu tố sản xuất để huy
+                    động, sử dụng có hiệu quả các nguồn lực.</p>
+
+                    <h4>4. Mục tiêu kinh tế số</h4>
+                    <div class="stat-highlight">
+                        <p><strong>📊 Đến năm 2025:</strong> Kinh tế số chiếm 20% GDP</p>
+                        <p><strong>📊 Đến năm 2030:</strong> Kinh tế số chiếm khoảng 30% GDP</p>
+                        <p><strong>📈 Tốc độ tăng trưởng GDP bình quân:</strong> khoảng 6,5-7%</p>
+                    </div>
+                `
+            },
+            digital2045: {
+                title: "Tầm nhìn 2045 - Kỷ Nguyên Số Hóa Hùng Cường",
+                content: `
+                    <h4>1. Mục tiêu đến năm 2045</h4>
+                    <p>Kỷ niệm 100 năm thành lập nước Cộng hòa xã hội chủ nghĩa Việt Nam: <strong>Trở thành nước phát triển,
+                    có thu nhập cao</strong>, theo định hướng xã hội chủ nghĩa.</p>
+
+                    <h4>2. Đột phá về Khoa học - Công nghệ</h4>
+                    <p>Nghị quyết số 57-NQ/TW ngày 22/12/2024 của Bộ Chính trị về đột phá phát triển khoa học, công nghệ,
+                    đổi mới sáng tạo và chuyển đổi số quốc gia đặt mục tiêu đến năm 2045: </p>
+                    <ul>
+                        <li><strong>Quy mô kinh tế số đạt tối thiểu 50% GDP</strong></li>
+                        <li><strong>Là một trong các trung tâm công nghiệp công nghệ số của khu vực và thế giới</strong></li>
+                        <li><strong>Thuộc nhóm 30 nước dẫn đầu thế giới về đổi mới sáng tạo, chuyển đổi số</strong></li>
+                    </ul>
+
+                    <h4>3. Mục tiêu doanh nghiệp công nghệ</h4>
+                    <div class="stat-highlight">
+                        <p><strong>🏢 Tối thiểu 10 doanh nghiệp công nghệ số</strong> ngang tầm các nước tiên tiến</p>
+                        <p><strong>🌍 Thu hút ít nhất 5 tổ chức, doanh nghiệp công nghệ hàng đầu</strong> thế giới đặt trụ sở,
+                        đầu tư nghiên cứu, sản xuất tại Việt Nam</p>
+                        <p><strong>📱 Tỉ lệ doanh nghiệp công nghệ số</strong> tương đương các nước phát triển</p>
+                    </div>
+
+                    <h4>4. Vai trò của thế hệ trẻ - Sinh viên FPT</h4>
+                    <p>Chuyển đổi số quốc gia là mặt trận tiên phong đầy thách thức. <strong>Thế hệ trẻ, đặc biệt là các
+                    kỹ sư, sinh viên công nghệ thông tin tại các trường đại học tiên phong như Đại học FPT, đóng vai trò
+                    là lực lượng nòng cốt hành động</strong>, hiện thực hóa khát vọng đưa Việt Nam trở thành quốc gia số
+                    hóa hàng đầu khu vực và thế giới.</p>
+                `
+            }
+        };
+
+        const openDrawer = (key) => {
+            playSound(440, 'triangle', 0.08);
+            setTimeout(() => playSound(554, 'sine', 0.08), 50);
+
+            const data = drawerData[key];
+            if (!data) return;
+
+            document.getElementById('drawer-title').textContent = data.title;
+            document.getElementById('drawer-content').innerHTML = data.content;
+            document.getElementById('detail-drawer').classList.add('open');
+            document.querySelector('.drawer-overlay').classList.add('active');
+
+            gsap.fromTo(".drawer-body", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, delay: 0.1 });
+        };
+
+        const closeDrawer = () => {
+            playSound(330, 'sine', 0.1);
+            document.getElementById('detail-drawer').classList.remove('open');
+            document.querySelector('.drawer-overlay').classList.remove('active');
+        };
+    </script>
+</body>
+
+</html>
