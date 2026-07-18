@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Số Hóa Ký Ức Đổi Mới - Chương II</title>
+    <meta name="description"
+        content="Dự án sáng tạo: Số hóa ký ức Đổi mới - Chương II: Hoàn thiện thể chế và đẩy mạnh toàn diện công cuộc Đổi mới (1991 - 2016)">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;600;700;900&display=swap"
+        rel="stylesheet">
+    <!-- CDN D3.js và GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        :root {
+            --red: #C8102E;
+            --gold: #D4A017;
+            --bg: #F4EDE0;
+            --bg2: #FAF7F0;
+            --text: #2B2B2B;
+            --muted: #6B5B4E;
+            --white: #ffffff;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --border: rgba(200, 16, 46, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 18px;
+            /* Đảm bảo kích thước chữ >= 18px theo yêu cầu slide trình chiếu */
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Particle Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* Progress Bar */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--red), var(--gold));
+            width: 0%;
+            z-index: 1000;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(244, 237, 224, 0.92);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 2rem;
+            z-index: 99;
+            border-bottom: 1px solid var(--border);
+        }
+
+        nav .logo {
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: var(--red);
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        nav .menu-links a {
+            text-decoration: none;
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-left: 1.5rem;
+            transition: color 0.2s;
+        }
+
+        nav .menu-links a:hover {
+            color: var(--red);
+        }
+
+        /* Back to Top */
+        #back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 99;
+        }
+
+        #back-to-top.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ==========================================
+           SPLIT-SCREEN SCROLLYTELLING (CHƯƠNG II)
+           ========================================== */
+        #chapter2 {
+            display: flex;
+            position: relative;
+            width: 100vw;
+            min-height: 100vh;
+            margin-top: 4rem;
+        }
+
+        /* Left Panel: Visual Map & Timeline */
+        .left-panel {
+            position: sticky;
+            top: 4rem;
+            width: 50%;
+            height: calc(100vh - 4rem);
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 2rem;
+        }
+
+        .timeline-svg-wrapper {
+            position: relative;
+            width: 100%;
+            height: 95%;
+        }
+
+        .left-panel-title {
+            position: absolute;
+            top: 1.5rem;
+            left: 2rem;
+            font-size: 0.8rem;
+            font-weight: 900;
+            color: var(--red);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Right Panel: Scrollable Content */
+        .right-panel {
+            width: 50%;
+            padding: 4rem 4rem 6rem 3rem;
+            z-index: 2;
+        }
+
+        .scrolly-section {
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-bottom: 8rem;
+            opacity: 0.15;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .scrolly-section.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-tag {
+            font-size: 0.75rem;
+            font-weight: 900;
+            color: var(--red);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .scrolly-section h2 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--text);
+            line-height: 1.25;
+            margin-bottom: 1.5rem;
+        }
+
+        .scrolly-section h2 span {
+            color: var(--red);
+        }
+
+        .scrolly-section p {
+            color: var(--muted);
+            font-size: 1.05rem;
+            margin-bottom: 1.5rem;
+            text-align: justify;
+        }
+
+        /* Stats and Highlights */
+        .stats-grid {
+            display: flex;
+            gap: 1.2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.2rem;
+            flex: 1;
+            min-width: 170px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card .value {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--red);
+            line-height: 1.1;
+        }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--muted);
+            margin-top: 0.3rem;
+            line-height: 1.3;
+        }
+
+        .highlight-box {
+            background: rgba(200, 16, 46, 0.04);
+            border-left: 4px solid var(--red);
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .highlight-box h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--red);
+            margin-bottom: 0.4rem;
+        }
+
+        .highlight-box p {
+            font-size: 0.95rem;
+            margin-bottom: 0;
+        }
+
+        /* Drawer Trigger Button */
+        .btn-detail {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(200, 16, 46, 0.2);
+            align-self: flex-start;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-detail:hover {
+            background: #a30b22;
+            transform: translateY(-2px);
+        }
+
+        /* ==========================================
+           TIMELINE & MAP SVG STYLING
+           ========================================== */
+        .tl-axis {
+            fill: none;
+            stroke: #e0d5c1;
+            stroke-width: 2.5px;
+            stroke-linecap: round;
+        }
+
+        .tl-axis-progress {
+            fill: none;
+            stroke: var(--red);
+            stroke-width: 2.5px;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.6s ease-out;
+        }
+
+        .tl-circle {
+            fill: var(--white);
+            stroke: #e0d5c1;
+            stroke-width: 1.5px;
+            cursor: pointer;
+            transition: stroke 0.3s, fill 0.3s, r 0.3s;
+        }
+
+        .tl-circle.active {
+            stroke: var(--red);
+            fill: var(--gold);
+            r: 6.5px;
+        }
+
+        .tl-txt-year {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-size: 9px;
+            font-weight: 900;
+            fill: var(--red);
+            text-anchor: end;
+        }
+
+        .tl-txt-label {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-size: 8px;
+            font-weight: 700;
+            fill: var(--muted);
+            text-anchor: start;
+        }
+
+        .tl-txt-label.active {
+            fill: var(--red);
+            font-weight: 900;
+        }
+
+        /* Vietnam Map Styles */
+        .province-path {
+            fill: #E3D8C4;
+            stroke: #FAF7F0;
+            stroke-width: 0.2px;
+            transition: fill 0.6s ease, stroke 0.3s ease;
+        }
+
+        .vietnam-map-group {
+            display: none;
+        }
+
+        .province-path.active-region {
+            fill: var(--red);
+            stroke: var(--white);
+        }
+
+        .province-path.agri-region {
+            fill: #8EA87D;
+            /* Màu xanh lá mạ của nông nghiệp */
+        }
+
+        .star-island {
+            transition: transform 0.3s;
+        }
+
+        .star-island:hover {
+            transform: scale(1.3);
+        }
+
+        .island-txt {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-size: 5px;
+            font-weight: 800;
+            fill: var(--muted);
+            letter-spacing: 0.2px;
+        }
+
+        .connector-line {
+            display: none;
+            fill: none;
+            stroke: var(--gold);
+            stroke-width: 1px;
+            stroke-dasharray: 3 3;
+            opacity: 0;
+            transition: opacity 0.5s, stroke-width 0.5s;
+        }
+
+        .connector-line.active {
+            display: none;
+            opacity: 0;
+            stroke-width: 1.5px;
+            stroke-dasharray: none;
+        }
+
+        /* Industrial Marker Pulse */
+        .indus-marker {
+            display: none;
+            fill: var(--gold);
+            stroke: var(--white);
+            stroke-width: 1px;
+            opacity: 0;
+            transform-origin: center;
+            transition: opacity 0.5s;
+        }
+
+        .indus-marker.active {
+            display: none;
+            opacity: 0;
+            animation: none;
+        }
+
+        @keyframes pulse-marker {
+            0% {
+                r: 3px;
+            }
+
+            100% {
+                r: 6px;
+            }
+        }
+
+        /* Trade route lines */
+        .trade-route {
+            fill: none;
+            stroke: var(--gold);
+            stroke-width: 1.2px;
+            stroke-dasharray: 4 4;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .trade-route.active {
+            opacity: 0.85;
+            animation: dashflow 10s linear infinite;
+        }
+
+        @keyframes dashflow {
+            to {
+                stroke-dashoffset: -100;
+            }
+        }
+
+        /* ==========================================
+           DRAWER (SLIDE-OUT PANEL)
+           ========================================== */
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 420px;
+            height: 100vh;
+            background: var(--bg2);
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--border);
+        }
+
+        .drawer.open {
+            right: 0;
+        }
+
+        .drawer-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .drawer-header h3 {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--red);
+        }
+
+        .drawer-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--muted);
+            cursor: pointer;
+        }
+
+        .drawer-close:hover {
+            color: var(--red);
+        }
+
+        .drawer-body {
+            padding: 2rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .drawer-body h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .drawer-body h4:first-child {
+            margin-top: 0;
+        }
+
+        .drawer-body p {
+            font-size: 0.95rem;
+            color: var(--muted);
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+            z-index: 999;
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Bottom Chapter Nav */
+        .footer-nav {
+            background: var(--text);
+            padding: 2.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+            z-index: 3;
+            position: relative;
+        }
+
+        .footer-nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.8rem 1.6rem;
+            border-radius: 6px;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .footer-nav a.btn-prev {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .footer-nav a.btn-prev:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-4px);
+        }
+
+        .footer-nav a.btn-next {
+            background: var(--red);
+            box-shadow: 0 4px 12px rgba(200, 16, 46, 0.3);
+        }
+
+        .footer-nav a.btn-next:hover {
+            background: #a30b22;
+            transform: translateX(4px);
+        }
+
+        /* ==========================================
+           RESPONSIVE
+           ========================================== */
+        @media (max-width: 900px) {
+            #chapter2 {
+                flex-direction: column;
+            }
+
+            .left-panel {
+                position: relative;
+                top: 0;
+                width: 100%;
+                height: 55vh;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .right-panel {
+                width: 100%;
+                padding: 3rem 2rem;
+            }
+
+            .scrolly-section {
+                min-height: auto;
+                margin-bottom: 4rem;
+            }
+
+            .drawer {
+                width: 100%;
+                right: -100%;
+            }
+
+            nav .menu-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Progress Bar -->
+    <div id="progress-bar"></div>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="logo">
+            <span>📜</span> SỐ HÓA KÝ ỨC ĐỔI MỚI
+        </div>
+        <div class="menu-links">
+            <a href="index.html" class="sound-hover">Trang Chủ</a>
+            <a href="index.html#chapter1" class="sound-hover">Chương I</a>
+            <a href="#chapter2" class="sound-hover" style="color: var(--red)">Chương II</a>
+            <a href="chude3.html" class="sound-hover">Chương III</a>
+            <a href="chude4.html" class="sound-hover">Chương IV</a>
+            <a href="chude5.html" class="sound-hover">Chương V</a>
+        </div>
+    </nav>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
+
+    <!-- ==========================================
+         SPLIT-SCREEN SCROLLYTELLING
+         ========================================== -->
+    <section id="chapter2">
+        <!-- Left Side: Interactive SVG Timeline & Reform Map -->
+        <div class="left-panel">
+            <div class="left-panel-title">Bản đồ cải cách & Tiến trình (1991 - 2016)</div>
+            <div class="timeline-svg-wrapper">
+                <svg id="timeline-svg" width="100%" height="100%" viewBox="-120 -90 240 180">
+                    <!-- SVG content generated by JS/D3 -->
+                </svg>
+            </div>
+        </div>
+
+        <!-- Right Side: Narrative Scrolling Sections -->
+        <div class="right-panel">
+
+            <!-- Section 1: Cương lĩnh 1991 -->
+            <div id="section-1" class="scrolly-section active" data-index="0">
+                <h2>Cương Lĩnh 1991<br><span>Và Sự Ổn Định Kinh Tế</span></h2>
+                <p>Đại hội VII (6/1991) diễn ra trong bối cảnh quốc tế biến động sâu sắc, Liên Xô và Đông Âu lâm vào
+                    khủng hoảng nghiêm trọng. Đại hội đã bầu đồng chí Đỗ Mười làm Tổng Bí thư và thông qua <em>Cương
+                        lĩnh xây dựng đất nước trong thời kỳ quá độ lên chủ nghĩa xã hội (Cương lĩnh 1991)</em>.</p>
+
+                <div class="highlight-box">
+                    <h4>Định hướng trung tâm của Cương lĩnh</h4>
+                    <p>Khẳng định mục tiêu phát triển vì con người, giải phóng sức sản xuất. Lấy công nghiệp hóa gắn
+                        liền với phát triển nông nghiệp toàn diện làm nhiệm vụ trung tâm. Phát triển nền kinh tế hàng
+                        hóa nhiều thành phần vận động theo cơ chế thị trường dưới sự quản lý của Nhà nước.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" data-value="1991">0</div>
+                        <div class="label">Năm ban hành Cương lĩnh</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" data-value="5" data-suffix=" (1993)">0</div>
+                        <div class="label">Nghị quyết TW 5 về Nông nghiệp</div>
+                    </div>
+                </div>
+
+                <button class="btn-detail" onclick="openDrawer('platform1991')">💡 Xem dấu ấn Đại hội VII</button>
+            </div>
+
+            <!-- Section 2: Đẩy mạnh CNH-HDH -->
+            <div id="section-2" class="scrolly-section" data-index="1">
+                <span class="section-tag">Giai đoạn 1996 - 2005</span>
+                <h2>Thực Hiện Bước Đầu<br><span>Công Nghiệp Hóa – Hiện Đại Hóa</span></h2>
+                <p>Đại hội VIII (1996) khẳng định các tiền đề chuẩn bị cho công nghiệp hóa về cơ bản đã hoàn thành, cho
+                    phép chuyển đổi sang thời kỳ đẩy mạnh toàn diện.</p>
+
+                <div class="highlight-box">
+                    <h4>Đột phá về tư duy mô hình & cải cách đất đai</h4>
+                    <p>Đại hội VIII bổ sung đặc trưng bản chất của mô hình chủ nghĩa xã hội: "Dân giàu, nước mạnh, xã
+                        hội công bằng, văn minh". Việt Nam xuất sắc vượt qua cuộc khủng hoảng tài chính châu Á (1997)
+                        với GDP ổn định. Đến Đại hội IX (2001), Đảng bầu đồng chí Nông Đức Mạnh làm Tổng Bí thư và xác
+                        lập mô hình kinh tế tổng quát lâu dài là nền kinh tế thị trường định hướng XHCN.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" data-value="7.0" data-suffix="%">0%</div>
+                        <div class="label">Tăng trưởng GDP bình quân</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" data-value="5" data-suffix=" khóa IX">0</div>
+                        <div class="label">NQ TW 5 về Kinh tế tư nhân</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" data-value="7" data-suffix=" khóa IX">0</div>
+                        <div class="label">NQ TW 7 về Luật Đất Đai</div>
+                    </div>
+                </div>
+
+                <button class="btn-detail" onclick="openDrawer('industrialization')">🔬 Phân tích cải cách thể
+                    chế</button>
+            </div>
+
+            <!-- Section 3: Hội nhập quốc tế -->
+            <div id="section-3" class="scrolly-section" data-index="2">
+                <span class="section-tag">Giai đoạn 2006 - 2016</span>
+                <h2>Hội Nhập Toàn Diện<br><span>Ra Khỏi Nhóm Nước Nghèo</span></h2>
+                <p>Đại hội X (2006) đánh dấu bước phát triển tư duy lý luận lớn khi chính thức cho phép Đảng viên làm
+                    kinh tế tư bản tư nhân. Việt Nam chính thức gia nhập WTO năm 2007, thúc đẩy dòng vốn đầu tư trực
+                    tiếp nước ngoài (FDI) bùng nổ.</p>
+
+                <div class="highlight-box">
+                    <h4>Mốc son lịch sử & Ba đột phá chiến lược (2011)</h4>
+                    <p>Đến năm 2008, Việt Nam chính thức thoát khỏi nhóm nước nghèo, kém phát triển. Đại hội XI (2011)
+                        bầu đồng chí Nguyễn Phú Trọng làm Tổng Bí thư, thông qua Cương lĩnh bổ sung và đề ra <strong>Ba
+                            đột phá chiến lược</strong> cốt lõi để thúc đẩy đất nước cất cánh trong giai đoạn mới.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" data-value="19.88" data-suffix="B USD">0B USD</div>
+                        <div class="label">Dòng vốn đầu tư FDI (2010)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" data-value="1168" data-suffix=" USD">0 USD</div>
+                        <div class="label">GDP bình quân đầu người (2010)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" data-value="2008">0</div>
+                        <div class="label">Năm thoát khỏi nhóm nước nghèo</div>
+                    </div>
+                </div>
+
+                <button class="btn-detail" onclick="openDrawer('integration')">🏛️ Xem mốc son WTO & 3 Đột phá</button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Drawer Overlay & Panel -->
+    <div class="drawer-overlay" onclick="closeDrawer()"></div>
+    <div class="drawer" id="detail-drawer">
+        <div class="drawer-header">
+            <h3 id="drawer-title">Chi Tiết Tư Liệu</h3>
+            <button class="drawer-close" onclick="closeDrawer()">&times;</button>
+        </div>
+        <div class="drawer-body" id="drawer-content">
+            <!-- Nội dung nạp động bằng JS -->
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="footer-nav">
+        <a href="index.html#chapter1" class="btn-prev sound-hover">← Quay lại Chương I</a>
+        <a href="chude3.html" class="btn-next sound-hover">Chương III: Kinh Tế Tư Nhân →</a>
+    </div>
+
+    <script>
+        /* ==========================================
+           WEB AUDIO API - SYNTHESIZER SOUNDS
+           ========================================== */
+        const playSound = (freq, type = 'sine', duration = 0.1) => {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+                gain.gain.setValueAtTime(0.04, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) {
+                console.log("AudioContext blocked or unsupported");
+            }
+        };
+
+        // Sound triggers
+        document.querySelectorAll('.sound-hover').forEach(el => {
+            el.addEventListener('mouseenter', () => playSound(880, 'sine', 0.05));
+            el.addEventListener('click', () => playSound(523, 'triangle', 0.15));
+        });
+
+        /* ==========================================
+           CANVAS PARTICLE BACKGROUND
+           ========================================== */
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        const resizeCanvas = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2.2 + 0.5;
+                this.speedX = Math.random() * 0.4 - 0.2;
+                this.speedY = Math.random() * -0.4 - 0.1; // Trôi nhẹ lên trên
+                this.opacity = Math.random() * 0.4 + 0.1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.y < 0) {
+                    this.y = canvas.height;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+            draw() {
+                ctx.fillStyle = `rgba(212, 160, 23, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 35; i++) {
+            particles.push(new Particle());
+        }
+
+        const animateParticles = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        };
+        animateParticles();
+
+        /* ==========================================
+           LEFT PANEL: D3.JS TIMELINE & VIETNAM MAP
+           ========================================== */
+        const svg = d3.select("#timeline-svg");
+
+        // Dữ liệu thô bản đồ tỉnh thành thu gọn để căn chỉnh nhanh
+        const vnMapData = [
+            { "id": "vn-bac", "name": "Miền Bắc", "d": "M-14.3,-55.5 L-12.0,-60.2 L-9.8,-60.3 L-6.5,-71.0 L-3.6,-69.4 L1.3,-68.3 L6.6,-67.2 L9.5,-51.0 L18.8,-54.0 L17.0,-53.6 L12.0,-53.8 L9.7,-51.5 L8.2,-50.6 L4.7,-50.0 L0.1,-50.2 L-2.4,-50.5 L-5.2,-51.9 L-9.4,-52.5 L-14.3,-53.0 Z" },
+            { "id": "vn-dbsh", "name": "Đồng Bằng Sông Hồng", "d": "M2.7,-50.8 L4.9,-51.3 L5.7,-50.9 L6.1,-48.7 L5.6,-48.0 L5.4,-47.3 L3.1,-46.1 L2.0,-45.8 L1.0,-45.6 L0.8,-46.2 L0.1,-47.4 L0.8,-48.9 Z" },
+            { "id": "vn-tb", "name": "Tây Bắc", "d": "M-34.2,-61.9 L-32.6,-64.4 L-29.2,-62.9 L-27.2,-60.3 L-24.1,-59.3 L-21.6,-57.7 L-18.2,-56.0 L-14.3,-55.5 L-14.3,-53.0 L-22.5,-51.6 L-24.6,-47.4 L-27.7,-50.7 L-30.5,-58.1 L-34.2,-61.9 Z" },
+            { "id": "vn-bts", "name": "Bắc Trung Bộ", "d": "M-2.4,-50.5 L0.1,-50.2 L0.8,-48.9 L2.0,-45.8 L2.5,-44.0 L6.2,-42.0 L6.0,-42.9 L6.5,-9.9 L5.9,-9.7 L3.8,-11.8 L1.1,-13.9 L-1.1,-16.3 L-2.9,-18.7 L-2.5,-25.5 L-5.9,-25.9 L-7.8,-26.6 L-10.1,-27.3 L-13.2,-29.3 L-15.8,-31.0 L-14.3,-43.5 L-11.7,-45.5 L-9.8,-45.3 L-5.4,-48.2 L-2.4,-50.5 Z" },
+            { "id": "vn-ntb", "name": "Nam Trung Bộ", "d": "M6.5,-9.9 L8.1,-13.4 L10.3,-11.7 L11.5,-10.8 L14.2,-7.8 L16.0,-6.3 L17.5,-5.0 L20.3,-3.5 L21.7,-2.6 L22.5,-0.5 L23.8,1.3 L25.7,3.9 L27.1,5.2 L29.5,10.8 L30.2,11.6 L29.2,12.2 L28.0,23.1 L32.5,23.3 L33.3,28.1 L34.2,29.2 L32.8,29.9 L32.7,33.5 L31.9,37.5 L29.0,38.9 L26.6,33.9 L26.7,33.6 L25.2,35.4 L22.7,36.5 L21.4,36.8 L20.5,38.2 L19.9,40.3 L17.8,39.3 L15.5,40.6 L13.9,38.8 L12.9,35.4 L14.8,21.1 L17.4,17.1 L21.5,15.7 M24.0,13.3 Z" },
+            { "id": "vn-tn", "name": "Tây Nguyên", "d": "M14.8,21.1 L15.5,21.9 L16.3,23.5 L17.1,25.4 L19.5,25.3 L23.6,25.7 L26.5,28.6 L28.4,33.5 L26.6,33.9 L26.0,35.6 L24.9,35.5 L22.5,36.8 L21.4,36.8 L19.9,40.3 L19.1,39.7 L17.5,39.3 L16.1,40.5 L14.5,40.8 L13.1,37.8 L13.3,38.5 L13.9,38.8 L14.8,21.1 Z" },
+            { "id": "vn-dnb", "name": "Đông Nam Bộ", "d": "M14.5,40.8 L13.7,42.6 L13.0,43.0 L11.8,43.5 L10.4,45.4 L9.0,45.0 L8.1,45.2 L7.8,44.7 L7.1,44.0 L6.2,43.5 L5.2,40.1 L5.7,38.9 L7.9,38.7 L9.9,37.8 L12.2,35.7 L13.1,37.8 L14.5,40.8 Z" },
+            { "id": "vn-dbscl", "name": "Đồng Bằng Sông Cửu Long", "d": "M8.1,45.2 L8.3,55.7 L5.3,54.8 L2.7,55.0 L0.8,55.1 L-0.3,54.6 L-2.1,50.1 L-3.3,49.0 L-2.3,48.5 L-0.5,49.0 L0.5,49.2 L1.9,50.2 L2.6,49.5 L3.9,48.3 L4.7,48.4 L6.2,51.0 L7.4,51.7 L8.1,45.2 Z" }
+        ];
+
+        // 1. Tạo nhóm Map (Dịch phải và phóng to phù hợp)
+        const mapGroup = svg.append("g")
+            .attr("class", "vietnam-map-group")
+            .attr("transform", "translate(45, 0) scale(1.1)");
+
+        // Vẽ 63 tỉnh thành (thu gọn qua các vùng lớn) bằng màu be giấy cũ/xám nhạt đậm chất hoài niệm
+        const provinces = mapGroup.selectAll(".province-path")
+            .data(vnMapData)
+            .enter()
+            .append("path")
+            .attr("class", "province-path")
+            .attr("d", d => d.d)
+            .attr("data-id", d => d.id);
+
+        // Vẽ Quần đảo Hoàng Sa (Ngôi sao vàng + nhãn chữ)
+        // Helper sinh path ngôi sao 5 cánh
+        function getStarPath(cx, cy, r) {
+            let path = "";
+            for (let i = 0; i < 5; i++) {
+                const angleOuter = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+                const xOuter = cx + r * Math.cos(angleOuter);
+                const yOuter = cy + r * Math.sin(angleOuter);
+
+                const angleInner = ((i + 0.5) * 2 * Math.PI) / 5 - Math.PI / 2;
+                const xInner = cx + (r * 0.4) * Math.cos(angleInner);
+                const yInner = cy + (r * 0.4) * Math.sin(angleInner);
+
+                if (i === 0) {
+                    path += `M ${xOuter.toFixed(1)} ${yOuter.toFixed(1)}`;
+                } else {
+                    path += ` L ${xOuter.toFixed(1)} ${yOuter.toFixed(1)}`;
+                }
+                path += ` L ${xInner.toFixed(1)} ${yInner.toFixed(1)}`;
+            }
+            path += " Z";
+            return path;
+        }
+
+        const hsStar = mapGroup.append("path")
+            .attr("class", "star-island")
+            .attr("d", getStarPath(48, -10, 4))
+            .attr("fill", "var(--gold)")
+            .attr("stroke", "var(--red)")
+            .attr("stroke-width", "0.3");
+
+        mapGroup.append("text")
+            .attr("class", "island-txt")
+            .attr("x", 42)
+            .attr("y", -8)
+            .attr("text-anchor", "end")
+            .text("QĐ. Hoàng Sa");
+
+        // Vẽ Quần đảo Trường Sa (Ngôi sao vàng + nhãn chữ)
+        const tsStar = mapGroup.append("path")
+            .attr("class", "star-island")
+            .attr("d", getStarPath(56, 40, 4))
+            .attr("fill", "var(--gold)")
+            .attr("stroke", "var(--red)")
+            .attr("stroke-width", "0.3");
+
+        mapGroup.append("text")
+            .attr("class", "island-txt")
+            .attr("x", 50)
+            .attr("y", 42)
+            .attr("text-anchor", "end")
+            .text("QĐ. Trường Sa");
+
+        // 2. Tạo trục Timeline bên trái (x = -80)
+        const tlX = -80;
+        const tlPoints = [
+            { id: 0, year: "1991", label: "Cương lĩnh 1991", cy: -45 },
+            { id: 1, year: "1996", label: "Đẩy mạnh CNH-HDH", cy: 0 },
+            { id: 2, year: "2006", label: "WTO & Thoát nghèo", cy: 45 }
+        ];
+
+        // Vẽ đường trục
+        svg.append("line")
+            .attr("class", "tl-axis")
+            .attr("x1", tlX)
+            .attr("y1", -65)
+            .attr("x2", tlX)
+            .attr("y2", 65);
+
+        const tlProgressLine = svg.append("line")
+            .attr("class", "tl-axis-progress")
+            .attr("x1", tlX)
+            .attr("y1", -65)
+            .attr("x2", tlX)
+            .attr("y2", -65); // Tăng dần dựa trên scroll
+
+        // Vẽ các node tròn
+        const nodes = svg.selectAll(".tl-node")
+            .data(tlPoints)
+            .enter()
+            .append("g")
+            .attr("class", "tl-node");
+
+        nodes.append("circle")
+            .attr("class", "tl-circle")
+            .attr("cx", tlX)
+            .attr("cy", d => d.cy)
+            .attr("r", 4)
+            .on("click", (event, d) => {
+                playSound(523, 'triangle', 0.1);
+                document.getElementById(`section-${d.id + 1}`).scrollIntoView({ behavior: 'smooth' });
+            });
+
+        // Nhãn năm (Hiển thị bên trái timeline circle)
+        nodes.append("text")
+            .attr("class", "tl-txt-year")
+            .attr("x", tlX - 14)
+            .attr("y", d => d.cy + 3)
+            .attr("text-anchor", "end")
+            .text(d => d.year);
+
+        // Nhãn tên sự kiện (Hiển thị bên phải timeline circle)
+        nodes.append("text")
+            .attr("class", "tl-txt-label")
+            .attr("x", tlX + 15)
+            .attr("y", d => d.cy + 3)
+            .text(d => d.label);
+
+        // 3. Các đường nối connector từ Timeline sang Bản đồ cải cách
+        const connectorsData = [
+            { id: 0, d: `M ${tlX}, -45 Q -20,-60 25,-55 Q -20, 20 50, 45` }, // Cương lĩnh 1991 nối Đồng Bằng Sông Hồng & Sông Cửu Long
+            { id: 1, d: `M ${tlX}, 0 Q -10,-10 68,-63 Q 20, 10 75, 45` }, // CNH-HDH nối các khu công nghiệp
+            { id: 2, d: `M ${tlX}, 45 Q -30, 45 74,-60 Q 20, 30 78, 48` } // WTO/Hội nhập nối các cảng biển
+        ];
+
+        const connectors = svg.selectAll(".connector-line")
+            .data(connectorsData)
+            .enter()
+            .append("path")
+            .attr("class", "connector-line")
+            .attr("d", d => d.d);
+
+        // 4. Các điểm markers công nghiệp (Giai đoạn 2)
+        // Tọa độ các trung tâm: Hà Nội (23, -58), Hải Phòng (28, -55), Đà Nẵng (45, 5), TP.HCM (30, 50), Bình Dương (28, 46) trên hệ tọa độ map đã scale 1.1 dịch 45
+        const indusPoints = [
+            { cx: 70, cy: -64 }, // Hà Nội
+            { cx: 75, cy: -61 }, // Hải Phòng
+            { cx: 94, cy: 5 },   // Đà Nẵng
+            { cx: 78, cy: 45 },  // TP.HCM
+            { cx: 75, cy: 41 }   // Bình Dương
+        ];
+
+        const indusMarkers = svg.selectAll(".indus-marker")
+            .data(indusPoints)
+            .enter()
+            .append("circle")
+            .attr("class", "indus-marker")
+            .attr("cx", d => d.cx)
+            .attr("cy", d => d.cy)
+            .attr("r", 4);
+
+        // 5. Các đường luồng giao thương thương mại WTO (Giai đoạn 3)
+        const routesData = [
+            { d: "M 75,-61 Q 120,-90 150,-100" }, // Hải Phòng đi quốc tế
+            { d: "M 94,5 Q 150,0 170,-20" },     // Đà Nẵng đi quốc tế
+            { d: "M 78,45 Q 140,70 160,85" }     // TP.HCM đi quốc tế
+        ];
+
+        const tradeRoutes = svg.selectAll(".trade-route")
+            .data(routesData)
+            .enter()
+            .append("path")
+            .attr("class", "trade-route")
+            .attr("d", d => d.d);
+
+        // 6. Hàm cập nhật trạng thái động của Bản đồ & Timeline dựa trên phân vùng
+        const updateReformVisuals = (index) => {
+            // Cập nhật đường đỏ chạy dọc timeline
+            const progressY = [-45, 0, 45];
+            tlProgressLine.transition().duration(600)
+                .attr("y2", progressY[index]);
+
+            // Kích hoạt active node tròn và nhãn chữ
+            svg.selectAll(".tl-circle")
+                .classed("active", (d, i) => i === index)
+                .transition().duration(400)
+                .attr("r", (d, i) => i === index ? 6.5 : 4);
+
+            svg.selectAll(".tl-txt-label")
+                .classed("active", (d, i) => i === index);
+
+            // Kích hoạt đường nối connector tương ứng
+            connectors.classed("active", false);
+            tradeRoutes.classed("active", false);
+
+            // Cập nhật Highlight Bản đồ theo giai đoạn cải cách
+            provinces.classed("agri-region", false)
+                .classed("active-region", false);
+
+            if (index === 0) {
+                // Giai đoạn 1: Nông nghiệp hàng đầu -> Xanh hóa Đồng bằng Sông Hồng và Sông Cửu Long
+                provinces.filter(d => d.id === "vn-dbsh" || d.id === "vn-dbscl")
+                    .classed("agri-region", true);
+
+                // Zoom nhẹ vào hai đồng bằng
+                gsap.to(mapGroup.node(), { duration: 0.8, attr: { transform: "translate(42, -5) scale(1.15)" }, ease: "power2.out" });
+
+                indusMarkers.classed("active", false);
+                tradeRoutes.classed("active", false);
+            }
+            else if (index === 1) {
+                // Giai đoạn 2: CNH-HDH đẩy mạnh -> Đỏ hóa toàn bộ để thể hiện sự bứt phá
+                provinces.classed("active-region", true);
+
+                // Zoom toàn cảnh
+                gsap.to(mapGroup.node(), { duration: 0.8, attr: { transform: "translate(45, 0) scale(1.1)" }, ease: "power2.out" });
+
+                // Không hiển thị các điểm pulsing công nghiệp
+                indusMarkers.classed("active", false);
+                tradeRoutes.classed("active", false);
+            }
+            else if (index === 2) {
+                // Giai đoạn 3: Hội nhập quốc tế WTO -> Nổi bật Hoàng Sa, Trường Sa và các cửa ngõ kinh tế
+                provinces.filter(d => d.id === "vn-dnb" || d.id === "vn-ntb" || d.id === "vn-dbscl")
+                    .classed("active-region", true);
+
+                // Zoom nghiêng nhẹ ra hướng Biển Đông
+                gsap.to(mapGroup.node(), { duration: 0.8, attr: { transform: "translate(38, 2) scale(1.12)" }, ease: "power2.out" });
+
+                indusMarkers.classed("active", false);
+                // Vẽ các tuyến đường luồng giao thương WTO bay ra thế giới
+                tradeRoutes.classed("active", true);
+            }
+        };
+
+        /* ==========================================
+           SCROLLYTELLING INTERSECTION OBSERVER
+           ========================================== */
+        const scrollySections = document.querySelectorAll('.scrolly-section');
+
+        const obsOptions = {
+            root: null,
+            rootMargin: "-45% 0px -45% 0px", // Kích hoạt khi cuộn đến vùng giữa màn hình
+            threshold: 0
+        };
+
+        const scrollyObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    scrollySections.forEach(s => s.classList.remove('active'));
+                    entry.target.classList.add('active');
+
+                    const index = parseInt(entry.target.getAttribute('data-index'));
+                    updateReformVisuals(index);
+
+                    // Kích hoạt chạy số thống kê (Count-up)
+                    entry.target.querySelectorAll('.value[data-value]').forEach(countUp);
+                }
+            });
+        }, obsOptions);
+
+        scrollySections.forEach(s => scrollyObserver.observe(s));
+
+        // Hàm đếm số tự động (Count-up)
+        function countUp(el) {
+            if (el.classList.contains('counted')) return;
+            el.classList.add('counted');
+            const target = parseFloat(el.getAttribute('data-value'));
+            const suffix = el.getAttribute('data-suffix') || '';
+            const isFloat = target % 1 !== 0;
+
+            let cur = 0;
+            const step = target / 40;
+            const interval = setInterval(() => {
+                cur += step;
+                if (cur >= target) {
+                    cur = target;
+                    clearInterval(interval);
+                }
+                el.textContent = (isFloat ? cur.toFixed(1) : Math.floor(cur)) + suffix;
+            }, 25);
+        }
+
+        // Theo dõi tiến trình cuộn trang & Nút Back-to-top
+        window.addEventListener('scroll', () => {
+            const scrollTotal = document.body.scrollHeight - window.innerHeight;
+            const progress = (window.scrollY / scrollTotal) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+
+            const b2t = document.getElementById('back-to-top');
+            if (window.scrollY > 400) {
+                b2t.classList.add('show');
+            } else {
+                b2t.classList.remove('show');
+            }
+        });
+
+        /* ==========================================
+           DRAWER (SLIDE-OUT DATA DETAIL)
+           ========================================== */
+        const drawerData = {
+            platform1991: {
+                title: "Cương Lĩnh 1991 & Ổn Định Kinh Tế",
+                content: `
+                    <h4>1. Bối cảnh lịch sử Đại hội VII (6/1991)</h4>
+                    <p>Đất nước bước vào Đại hội VII khi chế độ xã hội chủ nghĩa tại Đông Âu và Liên Xô sụp đổ hoàn toàn. Ở trong nước, tình trạng bao vây cấm vận vẫn siết chặt, lạm phát cao và mất đi nguồn hỗ trợ kinh tế truyền thống. Ban chấp hành Trung ương khóa VII bầu đồng chí Đỗ Mười làm Tổng Bí thư.</p>
+                    
+                    <h4>2. Trọng tâm Cương lĩnh 1991</h4>
+                    <p>Cương lĩnh xây dựng đất nước trong thời kỳ quá độ được thông qua, xác định rõ: <em>Công nghiệp hóa gắn liền với phát triển nông nghiệp toàn diện là nhiệm vụ trung tâm</em>. Thừa nhận và bảo hộ sự đa dạng thành phần kinh tế, chuyển hoàn toàn sang vận hành theo cơ chế thị trường dưới sự quản lý của Nhà nước.</p>
+                    
+                    <h4>3. Các dấu ấn triển khai đột phá</h4>
+                    <p><strong>Nghị quyết Trung ương 5 (6/1993):</strong> Xác định nông nghiệp là mặt trận hàng đầu, giao quyền sử dụng đất lâu dài cho nông dân, tạo làn sóng tự chủ kinh tế nông thôn mới.<br>
+                    <strong>Nghị quyết Trung ương 7 (7/1994):</strong> Đưa ra chủ trương phát triển công nghiệp và đẩy mạnh ứng dụng khoa học kỹ thuật.<br>
+                    <strong>Hội nghị đại biểu giữa nhiệm kỳ (1/1994):</strong> Lần đầu tiên chính thức đưa khái niệm xây dựng <em>Nhà nước pháp quyền của nhân dân, do nhân dân, vì nhân dân</em> vào văn kiện Đảng.</p>
+                `
+            },
+            industrialization: {
+                title: "Đẩy Mạnh Công Nghiệp Hóa – Hiện Đại Hóa",
+                content: `
+                    <h4>1. Chuyển mình thời kỳ mới (Đại hội VIII - 1996)</h4>
+                    <p>Đại hội VIII tuyên bố: Các tiền đề chuẩn bị cho công nghiệp hóa về cơ bản đã hoàn thành, cho phép chuyển sang thời kỳ đẩy mạnh toàn diện nền kinh tế. Bổ sung mục tiêu tổng quát: "Dân giàu, nước mạnh, xã hội công bằng, văn minh".</p>
+                    
+                    <h4>2. Vượt khủng hoảng tài chính châu Á (1997)</h4>
+                    <p>Trong giai đoạn 1997 - 1998, cơn bão khủng hoảng tài chính tiền tệ càn quét Đông Á. Việt Nam nhờ duy trì kinh tế nhà nước tự chủ và kiểm soát tốt cán cân thương mại đã vững vàng vượt sóng lớn, duy trì đà tăng trưởng GDP bình quân hàng năm đạt 7.0%.</p>
+                    
+                    <h4>3. Đại hội IX (2001) & Các Nghị quyết bước ngoặt</h4>
+                    <p>Bầu đồng chí Nông Đức Mạnh làm Tổng Bí thư, xác lập hệ thống kinh tế thị trường định hướng xã hội chủ nghĩa là mô hình kinh tế tổng quát trong thời kỳ quá độ.<br>
+                    <strong>Nghị quyết Trung ương 5 khóa IX về kinh tế tư nhân:</strong> Khẳng định đây là một bộ phận cấu thành đặc biệt quan trọng, định hướng chiến lược lâu dài và dỡ bỏ các rào cản phân biệt đối xử.<br>
+                    <strong>Nghị quyết Trung ương 7 khóa IX về đất đai:</strong> Khẳng định đất đai thuộc sở hữu toàn dân do Nhà nước đại diện chủ sở hữu thống nhất quản lý. Thừa nhận quyền sử dụng đất là một loại hàng hóa đặc biệt lưu thông trên thị trường.</p>
+                `
+            },
+            integration: {
+                title: "Hội Nhập Toàn Diện & Kỳ Tích Thoát Nghèo",
+                content: `
+                    <h4>1. Đại hội X (2006) & Điểm tựa tư nhân</h4>
+                    <p>Cho phép Đảng viên làm kinh tế tư bản tư nhân. Quyết sách cởi trói tư duy lớn giúp các tập đoàn kinh tế tư nhân đa sở hữu thành lập và cống hiến mạnh mẽ cho sự phát triển của quốc gia.</p>
+                    
+                    <h4>2. Dấu ấn WTO & Dòng vốn FDI bùng nổ</h4>
+                    <p>Năm 2007, Việt Nam chính thức là thành viên thứ 150 của Tổ chức Thương mại Thế giới (WTO). Đến năm 2010, Việt Nam giao thương rộng mở với 230 quốc gia và vùng lãnh thổ, Hoa Kỳ và Trung Quốc vươn lên thành đối tác thương mại lớn nhất. Dòng vốn đầu tư trực tiếp nước ngoài (FDI) nhảy vọt từ 6.84 tỷ USD (2005) lên mức kỷ lục 19.88 tỷ USD (2010).</p>
+                    
+                    <h4>3. Mốc son thoát nghèo & 3 Đột phá chiến lược (2011)</h4>
+                    <p>Năm 2008, Việt Nam chính thức bước ra khỏi danh sách các nước nghèo, kém phát triển, gia nhập nhóm nước có thu nhập trung bình (GDP bình quân đầu người đạt 1.168 USD vào năm 2010).<br>
+                    Đại hội XI (2011) bầu đồng chí Nguyễn Phú Trọng làm Tổng Bí thư, thông qua Cương lĩnh bổ sung. Đại hội xác lập <strong>Ba đột phá chiến lược</strong> lịch sử:<br>
+                    1. Hoàn thiện thể chế kinh tế thị trường định hướng XHCN.<br>
+                    2. Phát triển nhanh nguồn nhân lực chất lượng cao, đặc biệt là nhân lực quản lý.<br>
+                    3. Xây dựng kết cấu hạ tầng đồng bộ, hiện đại với một số công trình trọng điểm quốc gia.</p>
+                `
+            }
+        };
+
+        const openDrawer = (key) => {
+            playSound(440, 'triangle', 0.08);
+            setTimeout(() => playSound(554, 'sine', 0.08), 50);
+
+            const data = drawerData[key];
+            if (!data) return;
+
+            document.getElementById('drawer-title').textContent = data.title;
+            document.getElementById('drawer-content').innerHTML = data.content;
+
+            document.getElementById('detail-drawer').classList.add('open');
+            document.querySelector('.drawer-overlay').classList.add('active');
+        };
+
+        const closeDrawer = () => {
+            playSound(330, 'sine', 0.1);
+            document.getElementById('detail-drawer').classList.remove('open');
+            document.querySelector('.drawer-overlay').classList.remove('active');
+        };
+    </script>
+</body>
+
+</html>
