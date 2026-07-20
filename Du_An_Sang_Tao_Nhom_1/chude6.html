@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Số Hóa Ký Ức Đổi Mới - Chương VI</title>
+    <meta name="description" content="Dự án sáng tạo: Số hóa ký ức Đổi mới - Chương VI">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        :root {
+            --red: #C8102E;
+            --gold: #D4A017;
+            --bg: #F4EDE0;
+            --bg2: #FAF7F0;
+            --text: #2B2B2B;
+            --muted: #6B5B4E;
+            --white: #ffffff;
+            --shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+            --border: rgba(200, 16, 46, 0.15);
+            --line-color: #E5DEC9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 16px;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--red), var(--gold));
+            width: 0%;
+            z-index: 1000;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(244, 237, 224, 0.92);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 2rem;
+            z-index: 99;
+            border-bottom: 1px solid var(--border);
+        }
+
+        nav .logo {
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: var(--red);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        nav .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav .nav-links a:hover {
+            color: var(--red);
+        }
+
+        nav .nav-links a.active-page {
+            color: var(--red);
+            font-weight: 700;
+        }
+
+        /* NÚT CUỘN LÊN ĐẦU TRANG */
+        #back-to-top {
+            position: fixed;
+            bottom: 6rem;
+            right: 2rem;
+            width: 45px;
+            height: 45px;
+            background-color: var(--red);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(200, 16, 46, 0.25);
+            z-index: 98;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            transform: scale(0.8);
+        }
+
+        #back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+
+        #back-to-top:hover {
+            transform: scale(1.1);
+            background-color: #a30b22;
+        }
+
+        #back-to-top::before {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-bottom: 11px solid var(--white);
+            margin-bottom: 2px;
+        }
+
+        /* LAYOUT ĐỒ THỊ CYBER-GRID */
+        #chapter3 {
+            display: flex;
+            position: relative;
+            width: 100vw;
+            min-height: 100vh;
+            margin-top: 4rem;
+        }
+
+        .left-panel {
+            position: sticky;
+            top: 4rem;
+            width: 55%;
+            height: calc(100vh - 4rem);
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .left-panel-title {
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: var(--red);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            padding-bottom: 0.6rem;
+        }
+
+        .diagram-grid-container {
+            display: grid;
+            grid-template-columns: 80px 40px 1fr;
+            position: relative;
+            flex: 1;
+            padding-bottom: 2rem;
+        }
+
+        .diagram-grid-container::before {
+            content: '';
+            position: absolute;
+            left: 100px;
+            top: 10px;
+            bottom: 20px;
+            width: 3px;
+            background: var(--line-color);
+            z-index: 1;
+        }
+
+        .active-vertical-line {
+            position: absolute;
+            left: 100px;
+            top: 10px;
+            width: 3px;
+            background: var(--red);
+            z-index: 2;
+            transition: height 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            height: 0;
+        }
+
+        .grid-year-box {
+            grid-column: 1;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--muted);
+            text-align: right;
+            padding-right: 15px;
+            align-self: start;
+            margin-top: -3px;
+            transition: color 0.4s;
+        }
+
+        .grid-dot-box {
+            grid-column: 2;
+            justify-self: center;
+            align-self: start;
+            position: relative;
+            z-index: 3;
+        }
+
+        .grid-dot {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 3px solid var(--gold);
+            margin-top: 5px;
+            transition: all 0.4s;
+        }
+
+        .grid-content-box {
+            grid-column: 3;
+            padding-left: 20px;
+            padding-bottom: 4.5rem;
+            position: relative;
+        }
+
+        .grid-content-box::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 11px;
+            width: 20px;
+            height: 2px;
+            background: var(--line-color);
+            z-index: 1;
+            transition: background 0.4s;
+        }
+
+        .cards-wrapper {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .html-node {
+            background: var(--white);
+            border: 1px solid #E5DEC9;
+            border-radius: 8px;
+            padding: 0.7rem 1.1rem;
+            box-shadow: var(--shadow);
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            min-width: 140px;
+            max-width: 210px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .html-node.core {
+            border: 2px solid var(--red);
+            background: rgba(200, 16, 46, 0.02);
+        }
+
+        .node-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--text);
+            text-transform: uppercase;
+            line-height: 1.3;
+        }
+
+        .html-node.core .node-title {
+            color: var(--red);
+            font-size: 0.9rem;
+        }
+
+        .node-desc {
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-weight: 500;
+            margin-top: 0.2rem;
+            line-height: 1.3;
+        }
+
+        .grid-row-group.active .grid-year-box { color: var(--red); transform: scale(1.05); }
+        .grid-row-group.active .grid-dot { background: var(--red); border-color: var(--red); transform: scale(1.2); }
+        .grid-row-group.active .grid-content-box::before { background: var(--red); height: 2px; }
+        .grid-row-group.active .html-node { border-color: var(--red); box-shadow: 0 10px 25px rgba(200, 16, 46, 0.07); }
+        .grid-row-group.active .html-node.active-card { transform: translateY(-3px); background: #FFFDF9; }
+
+        .right-panel {
+            width: 45%;
+            padding: 4rem 3rem 6rem 2rem;
+            z-index: 2;
+        }
+
+        .scrolly-section {
+            min-height: 75vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-bottom: 6rem;
+            opacity: 0.15;
+            transform: translateY(25px);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+
+        .scrolly-section.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-tag {
+            font-size: 0.75rem;
+            font-weight: 900;
+            color: var(--red);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .scrolly-section h2 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--text);
+            line-height: 1.3;
+            margin-bottom: 1.2rem;
+        }
+
+        .scrolly-section h2 span { color: var(--red); }
+        .scrolly-section p { color: var(--muted); text-align: justify; margin-bottom: 1.5rem; }
+
+        .highlight-box {
+            background: rgba(200, 16, 46, 0.04);
+            border-left: 4px solid var(--red);
+            padding: 1rem 1.2rem;
+            margin: 1rem 0 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .highlight-box h4 { font-size: 0.95rem; font-weight: 700; color: var(--red); margin-bottom: 0.3rem; }
+        .highlight-box p { font-size: 0.9rem; margin-bottom: 0; text-align: justify;}
+
+        /* LAYOUT SỐ LIỆU ĐỒ HỌA TRỰC QUAN (NẰM TRÊN HÀNG NGANG) */
+        .stats-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-box {
+            flex: 1;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--red);
+            line-height: 1.1;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text);
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .btn-detail {
+            display: inline-flex;
+            align-items: center;
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            padding: 0.65rem 1.3rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(200, 16, 46, 0.15);
+            align-self: flex-start;
+            transition: all 0.2s;
+        }
+        .btn-detail:hover { background: #a30b22; transform: translateY(-1px); }
+
+        .drawer {
+            position: fixed;
+            top: 0; right: -450px;
+            width: 420px; height: 100vh;
+            background: var(--bg2);
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; flex-direction: column;
+            border-left: 1px solid var(--border);
+        }
+        .drawer.open { right: 0; }
+        .drawer-header { padding: 2rem 2rem 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .drawer-header h3 { font-weight: 900; color: var(--red); }
+        .drawer-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--muted); }
+        .drawer-body { padding: 2rem; overflow-y: auto; flex: 1; }
+        .drawer-body p { font-size: 0.95rem; color: var(--text); margin-bottom: 1rem; text-align: justify; }
+        .drawer-body strong { color: var(--red); }
+
+        .drawer-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.15); opacity: 0; pointer-events: none;
+            transition: opacity 0.4s; z-index: 999;
+        }
+        .drawer-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .footer-nav { background: var(--text); padding: 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .footer-nav a { color: var(--white); text-decoration: none; font-weight: 700; font-size: 0.85rem; padding: 0.7rem 1.4rem; border-radius: 6px; }
+        .footer-nav a.btn-prev { background: rgba(255, 255, 255, 0.1); }
+        .footer-nav a.btn-next { background: var(--red); }
+
+        @media (max-width: 1024px) {
+            #chapter3 { flex-direction: column; }
+            .left-panel { position: relative; top: 0; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 1.5rem; }
+            .right-panel { width: 100%; padding: 2.5rem 1.5rem; }
+            .scrolly-section { min-height: auto; margin-bottom: 4rem; }
+            .diagram-grid-container::before, .active-vertical-line { left: 85px; }
+            .diagram-grid-container { grid-template-columns: 65px 40px 1fr; }
+            nav .nav-links { display: none; }
+            #back-to-top { bottom: 5.5rem; right: 1rem; width: 40px; height: 40px; }
+            .stats-container { flex-direction: column; gap: 0.8rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+<canvas id="particle-canvas"></canvas>
+<div id="progress-bar"></div>
+
+<nav>
+    <div class="logo">📜 SỐ HÓA KÝ ỨC ĐỔI MỚI</div>
+    <ul class="nav-links">
+        <li><a href="index.html">Trang Chủ</a></li>
+        <li><a href="index.html#chapter1">Chương I</a></li>
+        <li><a href="chude2.html">Chương II</a></li>
+        <li><a href="chude3.html">Chương III</a></li>
+        <li><a href="chude4.html">Chương IV</a></li>
+        <li><a href="chude5.html">Chương V</a></li>
+        <li><a href="chude6.html" class="active-page">Chương VI</a></li>
+    </ul>
+</nav>
+
+<!-- NÚT ĐIỀU HƯỚNG LÊN TRÊN -->
+<button id="back-to-top" onclick="scrollToTop()"></button>
+
+<section id="chapter3">
+    <!-- BÊN TRÁI: SƠ ĐỒ ĐỒ THỊ LIÊN KẾT -->
+    <div class="left-panel">
+        <div class="left-panel-title">PHÒNG, CHỐNG THAM NHŨNG – BẢO VỆ VỮNG CHẮC THÀNH TỰU ĐỔI MỚI</div>
+
+        <div class="diagram-grid-container" id="diagram-container">
+            <div class="active-vertical-line" id="line-progress"></div>
+
+            <!-- I -->
+            <div class="grid-row-group active" data-row="0" style="display: contents;">
+                <div class="grid-year-box">Bản chất và diễn biến</div>
+                <div class="grid-dot-box"><div class="grid-dot"></div></div>
+                <div class="grid-content-box">
+                    <div class="cards-wrapper">
+                        <div class="html-node core active-card" onclick="scrollToSection('section-1')">
+                            <div class="node-title">Thực trạng</div>
+                            <div class="node-desc">Là một trong những mặt trái của kinh tế thị trường</div>
+                        </div>
+                        <div class="html-node active-card" onclick="scrollToSection('section-1')">
+                            <div class="node-title">Nguy cơ</div>
+                            <div class="node-desc">Ảnh hưởng đến sự tồn vong của chế độ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- II -->
+            <div class="grid-row-group" data-row="1" style="display: contents;">
+                <div class="grid-year-box">Nguyên nhân gốc rễ, hạn chế</div>
+                <div class="grid-dot-box"><div class="grid-dot"></div></div>
+                <div class="grid-content-box">
+                    <div class="cards-wrapper">
+                        <div class="html-node" onclick="scrollToSection('section-2')">
+                            <div class="node-title">Chính sách và hệ thống pháp luật</div>
+                        </div>
+                        <div class="html-node" onclick="scrollToSection('section-2')">
+                            <div class="node-title">Quản lý và điều hành nền kinh tế - xã hội</div>
+                        </div>
+                        <div class="html-node" onclick="scrollToSection('section-2')">
+                            <div class="node-title">Nhận thức, bổ nhiệm và luân chuyển cán bộ</div>
+                        </div>
+                        <div class="html-node" onclick="scrollToSection('section-2')">
+                            <div class="node-title">Phát hiện và xử lý tham nhũng</div>
+                        </div>
+                        <div class="html-node" onclick="scrollToSection('section-2')">
+                            <div class="node-title">Công tác tuyên truyền, phổ biến giáo dục</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- III -->
+            <div class="grid-row-group" data-row="2" style="display: contents;">
+                <div class="grid-year-box">Tác hại đa chiều của tham nhũng</div>
+                <div class="grid-dot-box"><div class="grid-dot"></div></div>
+                <div class="grid-content-box">
+                    <div class="cards-wrapper">
+                        <div class="html-node" onclick="scrollToSection('section-3')">
+                            <div class="node-title">Chính trị</div>
+                        </div>
+                        <div class="html-node" onclick="scrollToSection('section-3')">
+                            <div class="node-title">Kinh tế</div>
+                        </div>
+                        <div class="html-node" onclick="scrollToSection('section-3')">
+                            <div class="node-title">Xã hội</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- BÊN PHẢI: NỘI DUNG CUỘN CHUỘT -->
+    <div class="right-panel">
+        <!-- Section 1 -->
+        <div id="section-1" class="scrolly-section active" data-index="0">
+            <span class="section-tag">PHÒNG, CHỐNG THAM NHŨNG – BẢO VỆ VỮNG CHẮC THÀNH TỰU ĐỔI MỚI</span>
+            <h2>Mối đe dọa với Đảng trong thời kì đổi mới - Tham nhũng</h2>
+            <p><strong>1. Bản chất và diễn biến của tham nhũng trong công cuộc Đổi mới:</strong> Bên cạnh những thành tựu kinh tế vượt bậc, mặt trái của nền kinh tế thị trường đã làm nảy sinh tình trạng tham nhũng diễn biến phức tạp. Theo đánh giá của Đảng, tham nhũng xuất hiện tinh vi trên nhiều lĩnh vực then chốt, đặc biệt là trong quản lý và sử dụng đất đai, đầu tư xây dựng cơ bản, tiến trình cổ phần hóa doanh nghiệp nhà nước, cũng như việc quản lý, sử dụng nguồn vốn và tài sản công.
+</p>
+            <p><strong>2. Nguy cơ đối với chế độ:</strong> Tham nhũng không còn là sai phạm cá nhân đơn thuần mà đã trở thành vật cản lớn cho sự thành công của toàn bộ công cuộc Đổi mới. Nó trực tiếp làm suy giảm sức chiến đấu của Đảng, xói mòn lòng tin của nhân dân vào sự quản lý của Nhà nước, làm gia tăng khoảng cách giàu nghèo và tiềm ẩn các xung đột lợi ích, phản kháng xã hội gay gắt, đe dọa trực tiếp đến sự tồn vong của chế độ.
+</p>
+           
+
+            <!-- THIẾT KẾ ĐỒ HỌA SỐ LIỆU ĐẠI HỘI XII -->
+            <div class="stats-container">
+            </div>
+
+            <!--button class="btn-detail" onclick="openDrawer('I')">Xem chi tiết thêm về chủ đề này</button-->
+        </div>
+
+        <!-- Section 2 -->
+        <div id="section-2" class="scrolly-section" data-index="1">
+            <span class="section-tag">Hội nghị Trung ương 5 - Tháng 06/2017</span>
+            <h2>Hệ thống quản lý và nhận thức còn bộc lộ nhiều khoảng trống,<br><span> được chia thành 5 nhóm nguyên nhân cốt lõi sau:</span></h2>
+            <p><strong>Hạn chế trong chính sách và hệ thống pháp luật:</strong> Hệ thống pháp luật còn thiếu tính hoàn thiện, tồn tại sự chồng chéo, mâu thuẫn giữa các quy định.
+Nhiều văn bản quy phạm pháp luật thiếu tính minh bạch, kém tính khả thi trong thực tiễn. Khuyết điểm trong khâu thực thi chính sách khiến đối tượng thụ hưởng khó tiếp cận, tạo ra cơ chế "bôi trơn" độc hại
+ </p>
+            <p><strong>Hạn chế trong quản lý và điều hành nền kinh tế - xã hội:</strong> Cải cách hành chính chưa triệt để, còn thiếu sự công khai, minh bạch hóa các cơ chế quản lý kinh tế.
+Sự phân công trách nhiệm và quyền hạn giữa các chủ thể quản lý, cơ quan Nhà nước còn lỏng lẻo, chưa rõ ràng. Chính sách điều hành vĩ mô của Nhà nước trong một số giai đoạn chưa thực sự hợp lý.
+</p>
+            <p><strong>Hạn chế trong nhận thức, bổ nhiệm và luân chuyển cán bộ:</strong> Công tác đánh giá, nhìn nhận phẩm chất cán bộ trước khi bổ nhiệm còn lỏng lẻo.
+Tư tưởng cục bộ, địa phương, bè phái trong công tác nhân sự vẫn còn tồn tại, dẫn đến việc lựa chọn người thiếu năng lực và đạo đức. Sự xuống cấp về đạo đức, lối sống của một bộ phận cán bộ, công chức, viên chức chưa được ngăn chặn kịp thời.
+</p>
+            <p><strong>Hạn chế trong việc phát hiện và xử lý tham nhũng:</strong> Năng lực và hiệu quả hoạt động của các cơ quan có chức năng phát hiện tham nhũng còn yếu.
+Cơ chế khuyến khích, bảo vệ người dân tố giác hành vi tham nhũng chưa đủ mạnh mẽ. Các cơ quan tư pháp hình sự và cơ quan truyền thông, báo chí còn gặp nhiều rào cản, hạn chế trong quá trình điều tra, thông tin sai phạm.
+</p>
+            <p><strong>Hạn chế trong công tác tuyên truyền, phổ biến giáo dục:</strong> Nội dung tuyên truyền về phòng, chống tham nhũng còn rập khuôn, chưa được biên soạn linh hoạt để phù hợp với từng nhóm đối tượng khác nhau trong xã hội.
+Phạm vi triển khai chủ yếu mới chỉ thực hiện bó hẹp trong nội bộ các cơ quan, tổ chức, đơn vị mà chưa tiến hành sâu rộng, thực chất đến mọi tầng lớp nhân dân. Hình thức truyền thông đơn điệu, chủ yếu là báo cáo viên đọc giải thích một chiều.
+</p>
+            <!--button class="btn-detail" onclick="openDrawer('II')">Xem chi tiết thêm về chủ đề này</button-->
+        </div>
+
+        <!-- Section 3 -->
+        <div id="section-3" class="scrolly-section" data-index="2">
+            <span class="section-tag">Hội nghị Trung ương 6 & 7 - Năm 2017 - 2018</span>
+            <h2>Tham nhũng để lại những hệ lụy nặng nề <br><span>trên cả nhiều phương diện nền tảng của đất nước</span></h2>
+            <p><strong>Về chính trị:</strong> Làm giảm sút nghiêm trọng lòng tin của quần chúng nhân dân vào sự lãnh đạo của Đảng và sự quản lý Nhà nước, làm hoen ố hình ảnh của đội ngũ công bộc.</p>
+            <p><strong>Về kinh tế:</strong> Làm thất thoát, lãng phí những nguồn lực tài chính và tài sản công vô cùng lớn của quốc gia. Đồng thời, nó gây ảnh hưởng tiêu cực đến môi trường đầu tư, phá vỡ tính cạnh tranh lành mạnh của thị trường và làm chậm tốc độ tăng trưởng kinh tế chung.</p>
+            <p><strong>Về xã hội:</strong> Trực tiếp xâm phạm, làm đảo lộn các giá trị, chuẩn mực đạo đức truyền thống và tính nghiêm minh của pháp luật. Gây xáo trộn trật tự xã hội, tạo tâm lý bất an và hoài nghi trong đời sống nhân dân.</p>
+
+            <!--button class="btn-detail" onclick="openDrawer('III')">Xem chi tiết thêm về chủ đề này</button-->
+        </div>
+    </div>
+</section>
+
+<div class="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="detail-drawer">
+    <div class="drawer-header">
+        <h3 id="drawer-title">Chi Tiết Tư Liệu</h3>
+        <button class="drawer-close" onclick="closeDrawer()">&times;</button>
+    </div>
+    <div class="drawer-body" id="drawer-content"></div>
+</div>
+
+<div class="footer-nav">
+    <a href="chude5.html" class="btn-prev">← Chương V</a>
+</div>
+
+<script>
+    // 1. BACKGROUND PARTICLES LIGHTWEIGHT
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    window.addEventListener('resize', resize); resize();
+    class P {
+        constructor() { this.x = Math.random()*canvas.width; this.y = Math.random()*canvas.height; this.v = Math.random()*-0.2-0.05; }
+        draw() { ctx.fillStyle = 'rgba(212,160,23,0.12)'; ctx.beginPath(); ctx.arc(this.x, this.y, 1.2, 0, Math.PI*2); ctx.fill(); }
+        update() { this.y += this.v; if(this.y<0){this.y=canvas.height; this.x=Math.random()*canvas.width;} }
+    }
+    for(let i=0; i<15; i++) particles.push(new P());
+    function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.update(); p.draw();}); requestAnimationFrame(anim); }
+    anim();
+
+    // ĐIỀU HƯỚNG CUỘN (SCROLL TO SECTION) KHI CLICK HÌNH KHỐI
+    function scrollToSection(id) {
+        const target = document.getElementById(id);
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+    }
+
+    // HÀM CUỘN LÊN ĐẦU TRANG
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    // 2. PHẦN ĐỒNG BỘ HOẠT ẢNH CUỘN CHUỘT
+    const sections = document.querySelectorAll('.scrolly-section');
+    const lineProgress = document.getElementById('line-progress');
+    const backToTopBtn = document.getElementById('back-to-top');
+
+    const updateActiveRow = (index) => {
+        const container = document.getElementById('diagram-container');
+        const rowGroups = container.querySelectorAll('[data-row]');
+
+        rowGroups.forEach(group => {
+            const rIdx = parseInt(group.getAttribute('data-row'));
+            if (rIdx === index) {
+                group.classList.add('active');
+                group.querySelectorAll('.html-node').forEach(n => n.classList.add('active-card'));
+            } else {
+                group.classList.remove('active');
+                group.querySelectorAll('.html-node').forEach(n => n.classList.remove('active-card'));
+            }
+        });
+
+        const activeGroup = container.querySelector(`[data-row="${index}"]`);
+        if (activeGroup) {
+            const dot = activeGroup.querySelector('.grid-dot');
+            const containerTop = container.getBoundingClientRect().top;
+            const dotTop = dot.getBoundingClientRect().top;
+            const dotHeight = dot.getBoundingClientRect().height;
+            const calculatedHeight = (dotTop - containerTop) + (dotHeight / 2) - 10;
+            lineProgress.style.height = `${calculatedHeight}px`;
+        }
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                sections.forEach(s => s.classList.remove('active'));
+                entry.target.classList.add('active');
+                const index = parseInt(entry.target.getAttribute('data-index'));
+                updateActiveRow(index);
+            }
+        });
+    }, { root: null, rootMargin: "-45% 0px -45% 0px" });
+
+    sections.forEach(s => observer.observe(s));
+
+    window.addEventListener('scroll', () => {
+        const total = document.body.scrollHeight - window.innerHeight;
+        document.getElementById('progress-bar').style.width = (window.scrollY / total) * 100 + '%';
+
+        // Ẩn/Hiện nút Back to Top khi cuộn quá 300px
+        if (window.scrollY > 300) {
+            backToTopBtn.classList.add('show');
+        } else {
+            backToTopBtn.classList.remove('show');
+        }
+    });
+
+    /* DRAWER CONTROLLER - ĐÃ LÀM SẠCH KÝ TỰ CITE */
+    const drawerData = {
+        I: {
+            title: "X",
+            content: `X`
+        },
+        II: {
+            title: "X",
+            content: `X`
+        },
+        III: {
+            title: "X",
+            content: `X`
+        }
+    };
+
+    function openDrawer(k) {
+        const d = drawerData[k]; if(!d) return;
+        document.getElementById('drawer-title').textContent = d.title;
+        document.getElementById('drawer-content').innerHTML = d.content;
+        document.getElementById('detail-drawer').classList.add('open');
+        document.querySelector('.drawer-overlay').classList.add('active');
+    }
+    function closeDrawer() {
+        document.getElementById('detail-drawer').classList.remove('open');
+        document.querySelector('.drawer-overlay').classList.remove('active');
+    }
+</script>
+</body>
+</html>
