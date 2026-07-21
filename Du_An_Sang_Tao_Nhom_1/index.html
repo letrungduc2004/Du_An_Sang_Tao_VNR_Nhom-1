@@ -934,12 +934,12 @@
 
         mask.append("circle")
             .attr("cx", width / 2)
-            .attr("cy", height / 2 - 22) // Trùng khớp hoàn hảo với tâm dịch chuyển của bản đồ Việt Nam
+            .attr("cy", height / 2 + 23) // Trùng khớp hoàn hảo với tâm dịch chuyển của bản đồ Việt Nam
             .attr("r", 105)
             .attr("fill", "black");
 
         const gMindmap = svgMindmap.append("g")
-            .attr("transform", `translate(${width / 2}, ${height / 2})`);
+            .attr("transform", `translate(${width / 2}, ${height / 2 + 45})`);
 
         // Tạo layout radial tree
         const tree = d3.tree()
@@ -949,9 +949,10 @@
         tree(root);
 
         // Can thiệp gán góc quay cho 5 chương đối xứng hoàn hảo
-        if (root.children) {
+        if (root.children && root.children.length === 5) {
             root.children.forEach((child, i) => {
-                child.x = (i * 2 * Math.PI / 5) + (Math.PI / 5);
+                // Đặt Chương I (i = 0) ở vị trí 12 giờ (0 rad trong hệ radial D3 tương ứng hướng lên trên)
+                child.x = (i * 2 * Math.PI / 5);
             });
         }
 
@@ -969,17 +970,19 @@
         // Tạo đường viền hình ngôi sao 5 cánh kết nối các chương bao quanh bản đồ
         if (root.children && root.children.length === 5) {
             const starPoints = [
-                root.children[0], // Chương I
-                root.children[2], // Chương III
-                root.children[4], // Chương V
-                root.children[1], // Chương II
-                root.children[3], // Chương IV
-                root.children[0]  // Chương I
+                root.children[0], // Đỉnh 1 (12 giờ - Chương I)
+                root.children[2], // Đỉnh 2 (Chương III)
+                root.children[4], // Đỉnh 3 (Chương V)
+                root.children[1], // Đỉnh 4 (Chương II)
+                root.children[3], // Đỉnh 5 (Chương IV)
+                root.children[0]  // Nối về đỉnh 1 (Chương I)
             ];
 
             const starLine = d3.lineRadial()
                 .angle(d => d.x)
                 .radius(d => d.y);
+
+            gMindmap.selectAll(".star-outline").remove();
 
             gMindmap.append("path")
                 .datum(starPoints)
@@ -987,9 +990,9 @@
                 .attr("d", starLine)
                 .attr("fill", "none")
                 .attr("stroke", "var(--gold)")
-                .attr("stroke-width", "1.5")
-                .style("opacity", "0.65")
-                .style("filter", "drop-shadow(0 0 5px rgba(212, 160, 23, 0.5))");
+                .attr("stroke-width", "2")
+                .style("opacity", "0.8")
+                .style("filter", "drop-shadow(0 0 6px rgba(212, 160, 23, 0.6))");
         }
 
         // Vẽ node
